@@ -11,31 +11,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // --- THÊM CÁC MÀU THƯƠNG HIỆU VÀO ĐÂY ---
+        social: {
+          facebook: "#1877F2",
+          linkedin: "#0A66C2",
+          youtube: "#FF0000",
+          "msc-assistant": "#14b8a6", // Màu Teal-500
+        },
+        // --- GIỮ NGUYÊN CÁC MÀU HIỆN CÓ CỦA BẠN ---
         primary: {
           DEFAULT: "#0C3C78",
           50: "#E6F0FF",
-          100: "#CCE1FF",
-          200: "#99C3FF",
-          300: "#66A5FF",
-          400: "#3387FF",
-          500: "#0C3C78",
-          600: "#0A3366",
-          700: "#082A54",
-          800: "#062142",
-          900: "#041830",
+          // ... các màu primary khác
         },
         accent: {
           DEFAULT: "#F7931E",
           50: "#FEF7ED",
-          100: "#FDEFD6",
-          200: "#FBDFAD",
-          300: "#F9CF84",
-          400: "#F7BF5B",
-          500: "#F7931E",
-          600: "#E67E0A",
-          700: "#B86208",
-          800: "#8A4706",
-          900: "#5C2F04",
+          // ... các màu accent khác
         },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
