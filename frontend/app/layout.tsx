@@ -3,6 +3,7 @@ import { Roboto, Merriweather } from 'next/font/google';
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/components/language-provider";
+import { AuthProvider } from "@/contexts/auth-context";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
@@ -111,12 +112,14 @@ export default function RootLayout({
       <body className={`${roboto.variable} ${merriweather.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <LanguageProvider>
-            <div className="min-h-screen bg-background text-foreground">
-              <Header />
-              <main>{children}</main>
-              <Footer />
-              <FloatingButtons />
-            </div>
+            <AuthProvider>
+              <div className="min-h-screen bg-background text-foreground">
+                <Header />
+                <main>{children}</main>
+                <Footer />
+                <FloatingButtons />
+              </div>
+            </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>

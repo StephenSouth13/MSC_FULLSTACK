@@ -6,66 +6,38 @@ import Link from "next/link"
 import { Calendar, User, Clock, Eye, Heart, Share2, BookOpen, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useEffect, useState } from "react"
+import { api, BlogPost } from "@/lib/api"
 
 export default function BlogPage() {
-  // DỮ LIỆU BÀI VIẾT THỰC TẾ
-  const allBlogPosts = [
-    {
-      id: "1",
-      title: "Muốn phát triển liên tục - Phải có Kaizen!",
-      excerpt: "Kaizen là triết lý cải tiến liên tục, một công cụ mạnh mẽ giúp các cá nhân và tổ chức không ngừng đổi mới để nâng cao chất lượng và hiệu suất công việc.",
-      image: "/News/kaizen.webp",
-      author: "Dương Thế Khải",
-      authorAvatar: "/MSCers/DTK.webp",
-      publishDate: "22/05/2024",
-      category: "Kỹ năng mềm",
-      readTime: "5 phút đọc",
-      views: "1,284",
-      likes: "97",
-    },
-    {
-      id: "2",
-      title: "IKIGAI – Tìm ra lẽ sống của cuộc đời bạn",
-      excerpt: "Khám phá ý nghĩa cuộc sống và cách triết lý Ikigai từ Nhật Bản giúp bạn tìm thấy sự cân bằng hoàn hảo giữa công việc, đam mê và giá trị bản thân.",
-      image: "/News/ikigai.webp",
-      author: "TS. Phan Huỳnh Anh",
-      authorAvatar: "/Mentors/PHA.webp",
-      publishDate: "20/05/2024",
-      category: "Phát triển bản thân",
-      readTime: "7 phút đọc",
-      views: "2,109",
-      likes: "152",
-    },
-    {
-      id: "3",
-      title: "Trainer - Coach - Mentor khác nhau như thế nào?",
-      excerpt: "Phân biệt rõ ràng vai trò và giá trị của từng hình thức hỗ trợ phát triển, giúp bạn lựa chọn đúng người đồng hành trên con đường sự nghiệp.",
-      image: "/News/trainer-mentor-coach.webp",
-      author: "TS. Phan Huỳnh Anh",
-      authorAvatar: "/Mentors/PHA.webp",
-      publishDate: "18/05/2024",
-      category: "Coaching & Mentoring",
-      readTime: "6 phút đọc",
-      views: "3,512",
-      likes: "231",
-    },
-    {
-      id: "4",
-      title: "ASK - Mô hình đánh giá năng lực chuẩn quốc tế",
-      excerpt: "Tìm hiểu cách đo lường và phát triển năng lực nhân sự một cách hiệu quả với mô hình ASK: Thái độ (Attitude), Kỹ năng (Skills), và Kiến thức (Knowledge).",
-      image: "/News/ASK.webp", // Giả định tên file ảnh là ask.webp
-      author: "TS. Phan Huỳnh Anh",
-      authorAvatar: "/Mentors/PHA.webp",
-      publishDate: "15/05/2024",
-      category: "Quản trị Nhân sự",
-      readTime: "6 phút đọc",
-      views: "1,876",
-      likes: "112",
-    },
-  ]
+  const [allBlogPosts, setAllBlogPosts] = useState<BlogPost[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const featuredPost = allBlogPosts[0]; // Chọn bài đầu tiên làm bài nổi bật
-  const blogPosts = allBlogPosts.slice(1); // Các bài còn lại
+  useEffect(() => {
+    const fetchBlogPosts = async () => {
+      try {
+        setLoading(true)
+        const response = await api.getBlogPosts(1, 20) // Fetch first 20 posts
+        
+        if (response.success && response.data) {
+          setAllBlogPosts(response.data.data)
+        } else {
+          setError(response.error || 'Failed to fetch blog posts')
+        }
+      } catch (err) {
+        setError('An error occurred while fetching blog posts')
+        console.error('Error:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBlogPosts()
+  }, [])
+
+  const featuredPost = allBlogPosts[0] // Chọn bài đầu tiên làm bài nổi bật
+  const blogPosts = allBlogPosts.slice(1) // Các bài còn lại
 
   const categories = [
     { name: "Kỹ năng mềm", count: 18, color: "bg-blue-500" },
@@ -82,6 +54,45 @@ export default function BlogPage() {
     { label: "Chuyên gia đóng góp", value: "10+", icon: User },
     { label: "Lĩnh vực chia sẻ", value: "8+", icon: TrendingUp },
   ]
+
+  // Format date function
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('vi-VN')
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Đang tải bài viết...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-xl mb-4">⚠️ Lỗi tải dữ liệu</div>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!featuredPost) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-gray-500 text-xl mb-4">📝 Chưa có bài viết nào</div>
+          <p className="text-gray-600">Vui lòng quay lại sau.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -155,7 +166,7 @@ export default function BlogPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2">
                 <div className="relative aspect-video lg:aspect-auto">
                   <Image
-                    src={featuredPost.image}
+                    src={featuredPost.image || '/placeholder-image.jpg'}
                     alt={featuredPost.title}
                     fill
                     className="w-full h-full object-cover"
@@ -174,24 +185,32 @@ export default function BlogPage() {
                     <p className="text-gray-600 mb-6 leading-relaxed text-lg">{featuredPost.excerpt}</p>
 
                     <div className="flex items-center space-x-4 mb-8">
-                      <Image
-                        src={featuredPost.authorAvatar}
-                        alt={featuredPost.author}
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 rounded-full border-2 border-white shadow-md"
-                      />
+                      {featuredPost.author_avatar && (
+                        <Image
+                          src={featuredPost.author_avatar}
+                          alt={featuredPost.author || 'Author'}
+                          width={48}
+                          height={48}
+                          className="w-12 h-12 rounded-full border-2 border-white shadow-md"
+                        />
+                      )}
                       <div>
                         <p className="font-semibold text-gray-900">{featuredPost.author}</p>
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          <div className="flex items-center space-x-1"><Calendar className="h-4 w-4" /><span>{featuredPost.publishDate}</span></div>
-                          <div className="flex items-center space-x-1"><Clock className="h-4 w-4" /><span>{featuredPost.readTime}</span></div>
+                          <div className="flex items-center space-x-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>{formatDate(featuredPost.publish_date)}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{featuredPost.read_time}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <Link href={`/chia-se/${featuredPost.id}`}>
+                  <Link href={`/chia-se/${featuredPost.slug}`}>
                     <Button size="lg" className="w-full btn-primary text-lg py-6">
                       Đọc bài viết đầy đủ
                     </Button>
@@ -268,29 +287,45 @@ export default function BlogPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="h-full flex flex-col group overflow-hidden hover:shadow-xl transition-all duration-300 rounded-2xl">
-                  <div className="relative aspect-video">
-                    <Image src={post.image} alt={post.title} fill className="object-cover transition-transform duration-500 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium absolute top-4 left-4">
-                      {post.category}
-                    </span>
-                  </div>
-
-                  <CardContent className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-700 transition-colors duration-300 line-clamp-2 leading-tight">
-                      {post.title}
-                    </h3>
-                    <p className="text-gray-600 mb-4 line-clamp-3 flex-grow">{post.excerpt}</p>
-                    <div className="flex items-center space-x-3 mt-auto pt-4 border-t">
-                      <Image src={post.authorAvatar} alt={post.author} width={40} height={40} className="w-10 h-10 rounded-full" />
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{post.author}</p>
-                        <p className="text-xs text-gray-500">{post.publishDate}</p>
-                      </div>
+                <Link href={`/chia-se/${post.slug}`}>
+                  <Card className="h-full flex flex-col group overflow-hidden hover:shadow-xl transition-all duration-300 rounded-2xl">
+                    <div className="relative aspect-video">
+                      <Image 
+                        src={post.image || '/placeholder-image.jpg'} 
+                        alt={post.title} 
+                        fill 
+                        className="object-cover transition-transform duration-500 group-hover:scale-110" 
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                      <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium absolute top-4 left-4">
+                        {post.category}
+                      </span>
                     </div>
-                  </CardContent>
-                </Card>
+
+                    <CardContent className="p-6 flex flex-col flex-grow">
+                      <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-700 transition-colors duration-300 line-clamp-2 leading-tight">
+                        {post.title}
+                      </h3>
+                      <p className="text-gray-600 mb-4 line-clamp-3 flex-grow">{post.excerpt}</p>
+                      <div className="flex items-center space-x-3 mt-auto pt-4 border-t">
+                        {post.author_avatar && (
+                          <Image 
+                            src={post.author_avatar} 
+                            alt={post.author || 'Author'} 
+                            width={40} 
+                            height={40} 
+                            className="w-10 h-10 rounded-full" 
+                          />
+                        )}
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{post.author}</p>
+                          <p className="text-xs text-gray-500">{formatDate(post.publish_date)}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               </motion.div>
             ))}
           </div>

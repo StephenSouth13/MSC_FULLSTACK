@@ -2,7 +2,8 @@ package main
 
 import (
 	"log"
-	"os"
+	"net/http"
+	"time"
 
 	"msc-backend-api/internal/handlers"
 	"msc-backend-api/internal/middleware"
@@ -20,84 +21,88 @@ import (
 // @version 1.0
 // @description Backend API cho hệ thống quản trị MSC.EDU.VN
 // @termsOfService http://swagger.io/terms/
-
 // @contact.name MSC.EDU.VN API Support
 // @contact.url http://www.msc.edu.vn/support
 // @contact.email support@msc.edu.vn
-
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
-
 // @host localhost:8080
 // @BasePath /api/v1
-
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
 // @description Type "Bearer" followed by a space and JWT token.
 
 func main() {
-	// Load environment variables
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
-	}
+	_ = godotenv.Load()
 
-	// Initialize configuration
 	cfg := config.Load()
 
-	// Initialize database
-	db, err := database.Initialize(cfg.DatabaseURL)
+	db, err := database.Initialize(cfg.SupabaseURL)
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Fatal("Database connection failed: ", err)
 	}
 
-	// Set Gin mode
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// Initialize Gin router
-	r := gin.Default()
+	// Dùng gin.New() để tránh logger mặc định; chỉ Recovery
+	r := gin.New()
+	r.Use(gin.Recovery())
 
-	// CORS middleware
+	// Set trusted proxies for security (fix the warning)
+	r.SetTrustedProxies([]string{"127.0.0.1", "::1", "localhost"})
+
+	// Log lỗi ngắn gọn cho responses >= 400
+	r.Use(func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+		if status := c.Writer.Status(); status >= 400 {
+			if len(c.Errors) > 0 {
+				log.Printf("HTTP %d %s %s (%s) - %v",
+					status, c.Request.Method, c.Request.URL.Path, time.Since(start), c.Errors)
+			} else {
+				log.Printf("HTTP %d %s %s (%s)",
+					status, c.Request.Method, c.Request.URL.Path, time.Since(start))
+			}
+		}
+	})
+
+	// CORS: KHÔNG tự set header, KHÔNG tạo OPTIONS route thủ công
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = []string{
-		"http://localhost:3001", // Admin Panel
-		"http://localhost:3000", // Frontend
 		cfg.AdminURL,
 		cfg.FrontendURL,
+		"http://localhost:3000",
+		"http://127.0.0.1:3000",
 	}
 	corsConfig.AllowCredentials = true
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
 	r.Use(cors.New(corsConfig))
 
-	// Initialize handlers
+	// Handlers
 	authHandler := handlers.NewAuthHandler(db)
+	userHandler := handlers.NewUserHandler(db)
 	courseHandler := handlers.NewCourseHandler(db)
 	postHandler := handlers.NewPostHandler(db)
 	mentorHandler := handlers.NewMentorHandler(db)
-	userHandler := handlers.NewUserHandler(db)
 	uploadHandler := handlers.NewUploadHandler(cfg)
 	dashboardHandler := handlers.NewDashboardHandler(db)
+	programHandler := handlers.NewProgramHandler(db)
+	projectHandler := handlers.NewProjectHandler(db)
+	allBlogPostHandler := handlers.NewAllBlogPostHandler(db)
 
-	// API v1 routes
+	// -------- API v1 (cần auth) --------
 	v1 := r.Group("/api/v1")
 	{
-		// Authentication routes
-		auth := v1.Group("/auth")
-		{
-			auth.POST("/login", authHandler.Login)
-			auth.GET("/profile", middleware.RequireAuth(), authHandler.GetProfile)
-		}
-
-		// Dashboard routes
 		dashboard := v1.Group("/dashboard")
 		dashboard.Use(middleware.RequireAuth())
 		{
 			dashboard.GET("/stats", middleware.RequireRole("admin", "editor"), dashboardHandler.GetStats)
 		}
 
-		// Course routes
 		courses := v1.Group("/courses")
 		courses.Use(middleware.RequireAuth())
 		{
@@ -110,7 +115,6 @@ func main() {
 			courses.PATCH("/:id/reject", middleware.RequireRole("admin", "editor"), courseHandler.RejectCourse)
 		}
 
-		// Post routes
 		posts := v1.Group("/posts")
 		posts.Use(middleware.RequireAuth())
 		{
@@ -123,7 +127,6 @@ func main() {
 			posts.PATCH("/:id/reject", middleware.RequireRole("admin", "editor"), postHandler.RejectPost)
 		}
 
-		// Mentor routes
 		mentors := v1.Group("/mentors")
 		mentors.Use(middleware.RequireAuth())
 		{
@@ -134,7 +137,6 @@ func main() {
 			mentors.DELETE("/:id", middleware.RequireRole("admin", "editor"), mentorHandler.DeleteMentor)
 		}
 
-		// User routes
 		users := v1.Group("/users")
 		users.Use(middleware.RequireAuth())
 		{
@@ -144,31 +146,87 @@ func main() {
 			users.DELETE("/:id", middleware.RequireRole("admin"), userHandler.DeleteUser)
 		}
 
-		// Upload routes
 		upload := v1.Group("/upload")
 		upload.Use(middleware.RequireAuth())
 		{
 			upload.POST("", uploadHandler.UploadFile)
 		}
+
+		projects := v1.Group("/projects")
+		projects.Use(middleware.RequireAuth())
+		{
+			projects.GET("", projectHandler.GetProjects)
+			projects.POST("", middleware.RequireRole("admin", "editor"), projectHandler.CreateProject)
+			projects.GET("/:id", projectHandler.GetProjectByID)
+			projects.PUT("/:id", middleware.RequireRole("admin", "editor"), projectHandler.UpdateProject)
+			projects.DELETE("/:id", middleware.RequireRole("admin", "editor"), projectHandler.DeleteProject)
+		}
 	}
 
-	// Swagger documentation
-	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// -------- API (public + auth) --------
+	api := r.Group("/api")
+	{
+		allblogposts := api.Group("/allblogposts")
+		{
+			allblogposts.GET("", allBlogPostHandler.GetAllBlogPosts)
+			allblogposts.GET("/:id", allBlogPostHandler.GetBlogPostByID)
+			allblogposts.GET("/slug/:slug", allBlogPostHandler.GetBlogPostBySlug)
+		}
 
-	// Health check
+		projects := api.Group("/projects")
+		{
+			projects.GET("", projectHandler.GetProjects)
+			projects.GET("/:id", projectHandler.GetProjectByID)
+			projects.GET("/slug/:slug", projectHandler.GetProjectBySlug)
+		}
+
+		programs := api.Group("/programs")
+		{
+			programs.GET("", programHandler.GetPrograms)
+			programs.GET("/:id", programHandler.GetProgramByID)
+		}
+
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", userHandler.RegisterUser)
+			auth.POST("/login", authHandler.Login)
+			auth.POST("/logout", middleware.RequireAuth(), authHandler.Logout)
+			auth.GET("/profile", middleware.RequireAuth(), authHandler.GetProfile)
+
+			auth.GET("/test", func(c *gin.Context) {
+				c.JSON(http.StatusOK, gin.H{
+					"success": true,
+					"message": "Auth routes OK",
+					"path":    c.Request.URL.Path,
+					"method":  c.Request.Method,
+				})
+			})
+		}
+	}
+
+	// Ping / Health / Docs
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+			"status":  "ok",
+			"time":    time.Now(),
+		})
+	})
 	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status": "healthy",
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "healthy",
 			"service": "MSC Backend API",
 		})
 	})
+	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// Start server
-	port := os.Getenv("PORT")
+	// Start
+	port := cfg.Port
 	if port == "" {
 		port = "8080"
 	}
-
-	log.Printf("Server starting on port %s", port)
-	log.Fatal(r.Run(":" + port))
+	log.Printf("Server running at http://localhost:%s", port)
+	if err := r.Run(":" + port); err != nil {
+		log.Fatal("Server failed to start: ", err)
+	}
 }

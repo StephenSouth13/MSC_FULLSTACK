@@ -65,7 +65,7 @@ func (h *CourseHandler) GetCourses(c *gin.Context) {
 	// Check user role for filtering
 	userRoles, _ := c.Get("user_roles")
 	userID, _ := c.Get("user_id")
-	
+
 	if userRolesList, ok := userRoles.([]string); ok {
 		// Partners can only see their own courses
 		if auth.HasRole(userRolesList, "partner") && !auth.HasAnyRole(userRolesList, []string{"admin", "editor"}) {
@@ -176,7 +176,6 @@ func (h *CourseHandler) CreateCourse(c *gin.Context) {
 		Slug:         req.Slug,
 		Description:  req.Description,
 		ThumbnailURL: req.ThumbnailURL,
-		Category:     req.Category,
 		Status:       req.Status,
 		AuthorID:     authorID,
 	}
@@ -214,7 +213,7 @@ func (h *CourseHandler) CreateCourse(c *gin.Context) {
 // @Router /courses/{id} [put]
 func (h *CourseHandler) UpdateCourse(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	var course models.Course
 	if err := h.db.Where("id = ?", id).First(&course).Error; err != nil {
 		c.JSON(http.StatusNotFound, models.APIResponse{
@@ -227,7 +226,7 @@ func (h *CourseHandler) UpdateCourse(c *gin.Context) {
 	// Check permission
 	userID, _ := c.Get("user_id")
 	userRoles, _ := c.Get("user_roles")
-	
+
 	if userRolesList, ok := userRoles.([]string); ok {
 		if auth.HasRole(userRolesList, "partner") && course.AuthorID.String() != userID.(string) {
 			c.JSON(http.StatusForbidden, models.APIResponse{
@@ -264,7 +263,6 @@ func (h *CourseHandler) UpdateCourse(c *gin.Context) {
 	course.Slug = req.Slug
 	course.Description = req.Description
 	course.ThumbnailURL = req.ThumbnailURL
-	course.Category = req.Category
 	if req.Status != "" {
 		course.Status = req.Status
 	}

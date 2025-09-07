@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS courses (
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
     description TEXT,
+    detailed_content TEXT,
     thumbnail_url TEXT,
     category VARCHAR(100),
     status VARCHAR(50) NOT NULL DEFAULT 'pending_review',
@@ -49,6 +50,67 @@ CREATE TABLE IF NOT EXISTS courses (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+CREATE TABLE IF NOT EXISTS programs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    category VARCHAR(100),
+    duration VARCHAR(50),
+    students VARCHAR(50),
+    level VARCHAR(100),
+    price VARCHAR(50),
+    image TEXT,
+    description TEXT,
+    detailed_content TEXT,
+    highlights JSONB,  -- lưu danh sách mảng
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+-- Bảng projects
+CREATE TABLE projects (
+    id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    slug        text UNIQUE NOT NULL,
+    title       text NOT NULL,
+    description text,
+    image       text,
+    category    text,
+    status      text,
+    mentors     jsonb DEFAULT '[]'::jsonb,
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    updated_at  timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE allblogposts (
+    id SERIAL PRIMARY KEY,
+    slug TEXT NOT NULL UNIQUE,
+    title TEXT NOT NULL,
+    excerpt TEXT,
+    image TEXT,
+    author TEXT,
+    author_avatar TEXT,
+    publish_date DATE,
+    category TEXT,
+    details_blog TEXT,
+    read_time TEXT,
+    views INT DEFAULT 0,
+    likes INT DEFAULT 0
+);
+-- Trigger updated_at
+CREATE OR REPLACE FUNCTION set_projects_updated_at()
+RETURNS trigger AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_projects_updated_at ON projects;
+CREATE TRIGGER trg_projects_updated_at
+BEFORE UPDATE ON projects
+FOR EACH ROW
+EXECUTE FUNCTION set_projects_updated_at();
+
+-- Index để lọc nhanh
+CREATE INDEX IF NOT EXISTS idx_projects_category ON projects (category);
+CREATE INDEX IF NOT EXISTS idx_projects_status   ON projects (status);
 
 -- Create lessons table
 CREATE TABLE IF NOT EXISTS lessons (

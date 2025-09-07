@@ -89,7 +89,7 @@ func (h *UploadHandler) UploadFile(c *gin.Context) {
 
 	// For now, we'll implement a simple local file storage
 	// In production, this should be replaced with AWS S3, Cloudinary, etc.
-	uploadURL, err := h.saveFileLocally(c, file, filename, fileType)
+	uploadURL, err := h.saveFileLocally(filename, fileType)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.APIResponse{
 			Success: false,
@@ -111,7 +111,7 @@ func (h *UploadHandler) UploadFile(c *gin.Context) {
 
 func isValidFileType(fileType, filename string) bool {
 	ext := strings.ToLower(filepath.Ext(filename))
-	
+
 	switch fileType {
 	case "image":
 		return contains([]string{".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}, ext)
@@ -146,10 +146,10 @@ func contains(slice []string, item string) bool {
 	return false
 }
 
-func (h *UploadHandler) saveFileLocally(c *gin.Context, file interface{}, filename, fileType string) (string, error) {
+func (h *UploadHandler) saveFileLocally(filename, fileType string) (string, error) {
 	// This is a simple implementation for development
 	// In production, implement proper cloud storage (AWS S3, Cloudinary, etc.)
-	
+
 	// For now, return a placeholder URL
 	// The actual implementation would save the file to cloud storage and return the URL
 	baseURL := "https://api.msc.edu.vn/uploads"
@@ -184,7 +184,7 @@ func (h *UploadHandler) uploadToS3(file multipart.File, filename string) (string
 		return "", err
 	}
 
-	url := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", 
+	url := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s",
 		h.config.S3Bucket, h.config.AWSRegion, filename)
 	return url, nil
 }
