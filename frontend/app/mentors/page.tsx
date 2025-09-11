@@ -99,7 +99,8 @@ export default function MentorsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
+    // Nền tổng thể của trang
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-br from-blue-900 via-blue-800 to-teal-900 text-white">
         <div className="container">
@@ -121,27 +122,34 @@ export default function MentorsPage() {
       </section>
 
       {/* Tabs Section */}
-      <section className="sticky top-[79px] bg-white/80 backdrop-blur-lg z-30 border-b shadow-sm">
+      {/* Sticky tab cần có nền mờ trong dark mode để hòa hợp */}
+      <section className="sticky top-[79px] bg-white/80 backdrop-blur-lg z-30 border-b shadow-sm dark:bg-gray-800/80 dark:border-gray-700">
         <div className="container">
           <div className="flex justify-center items-center space-x-2 md:space-x-4 py-4">
+            {/* Nút phương pháp */}
             <Button
               onClick={() => setActiveTab('methods')}
               variant={activeTab === 'methods' ? 'default' : 'ghost'}
-              className={`transition-all duration-300 rounded-full px-4 md:px-6 ${activeTab === 'methods' ? 'btn-primary' : ''}`}
+              className={`transition-all duration-300 rounded-full px-4 md:px-6 
+                          ${activeTab === 'methods' ? 'btn-primary' : 'dark:text-gray-300 dark:hover:bg-gray-700'}`}
             >
               <BookOpen className="mr-2 h-4 w-4" /> Phương pháp
             </Button>
+            {/* Nút ban giảng huấn */}
             <Button
               onClick={() => setActiveTab('faculty')}
               variant={activeTab === 'faculty' ? 'default' : 'ghost'}
-              className={`transition-all duration-300 rounded-full px-4 md:px-6 ${activeTab === 'faculty' ? 'btn-primary' : ''}`}
+              className={`transition-all duration-300 rounded-full px-4 md:px-6 
+                          ${activeTab === 'faculty' ? 'btn-primary' : 'dark:text-gray-300 dark:hover:bg-gray-700'}`}
             >
               <Users className="mr-2 h-4 w-4" /> Ban Giảng Huấn
             </Button>
+            {/* Nút nhân sự kế thừa */}
             <Button
               onClick={() => setActiveTab('successors')}
               variant={activeTab === 'successors' ? 'default' : 'ghost'}
-              className={`transition-all duration-300 rounded-full px-4 md:px-6 ${activeTab === 'successors' ? 'btn-primary' : ''}`}
+              className={`transition-all duration-300 rounded-full px-4 md:px-6 
+                          ${activeTab === 'successors' ? 'btn-primary' : 'dark:text-gray-300 dark:hover:bg-gray-700'}`}
             >
               <Sparkles className="mr-2 h-4 w-4" /> Nhân sự Kế thừa
             </Button>
@@ -150,7 +158,7 @@ export default function MentorsPage() {
       </section>
 
       {/* Content Section */}
-      <main className="py-24 bg-gray-50">
+      <main className="py-24 bg-gray-50 dark:bg-gray-900"> {/* Nền main content */}
         <div className="container">
           <AnimatePresence mode="wait">
             {activeTab === 'faculty' && (
@@ -169,21 +177,33 @@ export default function MentorsPage() {
                 >
                   {faculty.map((mentor) => (
                     <motion.div key={mentor.id} variants={itemVariants}>
-                      <Card className="h-full flex flex-col group overflow-hidden bg-white hover:shadow-2xl transition-all duration-300 rounded-2xl text-center border hover:-translate-y-2">
+                      <Card 
+                        className="h-full flex flex-col group overflow-hidden bg-white hover:shadow-2xl transition-all duration-300 rounded-2xl text-center border hover:-translate-y-2
+                                   dark:bg-gray-800 dark:border-gray-700 dark:hover:border-blue-500" // Card trong dark mode
+                      >
                         <CardContent className="p-8 flex flex-col flex-grow items-center">
                           <Image
                             src={mentor.avatar}
                             alt={mentor.name}
                             width={160}
                             height={160}
-                            className="rounded-full w-40 h-40 object-cover border-4 border-white shadow-lg mb-6"
+                            className="rounded-full w-40 h-40 object-cover border-4 border-white shadow-lg mb-6 dark:border-gray-700" // Border ảnh mentor
                           />
-                          <CardTitle className="text-2xl font-bold text-gray-900">{mentor.name}</CardTitle>
-                          <Badge variant="secondary" className="my-3 text-sm bg-blue-100 text-blue-800">{mentor.title}</Badge>
-                          <p className="text-gray-600 mb-6 flex-grow">{mentor.description}</p>
+                          <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">{mentor.name}</CardTitle> {/* Tên mentor */}
+                          <Badge 
+                            variant="secondary" 
+                            className="my-3 text-sm bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200" // Badge title
+                          >
+                            {mentor.title}
+                          </Badge>
+                          <p className="text-gray-600 mb-6 flex-grow dark:text-gray-300">{mentor.description}</p> {/* Mô tả mentor */}
                           <div className="mt-auto w-full">
                             <Link href={`/mentors/${mentor.id}`}>
-                              <Button variant="outline" className="w-full group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                              <Button 
+                                variant="outline" 
+                                className="w-full group-hover:bg-blue-500 group-hover:text-white transition-colors
+                                           dark:text-white dark:border-gray-600 dark:hover:bg-blue-700" // Nút xem hồ sơ
+                              >
                                 Xem Hồ Sơ <ChevronRight className="ml-2 h-4 w-4" />
                               </Button>
                             </Link>
@@ -206,8 +226,8 @@ export default function MentorsPage() {
                 className="max-w-4xl mx-auto"
               >
                   <div className="text-center mb-12">
-                      <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 font-serif">{teachingMethods.title}</h2>
-                      <p className="text-xl text-gray-600">{teachingMethods.description}</p>
+                      <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white font-serif">{teachingMethods.title}</h2> {/* Tiêu đề phương pháp */}
+                      <p className="text-xl text-gray-600 dark:text-gray-300">{teachingMethods.description}</p> {/* Mô tả phương pháp */}
                   </div>
                   <motion.div 
                     className="space-y-8"
@@ -217,13 +237,16 @@ export default function MentorsPage() {
                   >
                       {teachingMethods.points.map((point, index) => (
                           <motion.div key={index} variants={itemVariants}>
-                              <Card className="p-8 flex items-start space-x-6 bg-white shadow-lg rounded-2xl">
+                              <Card 
+                                className="p-8 flex items-start space-x-6 bg-white shadow-lg rounded-2xl
+                                           dark:bg-gray-800 dark:border-gray-700" // Card phương pháp
+                              >
                                   <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-teal-400 rounded-xl flex items-center justify-center">
                                       <point.icon className="w-8 h-8 text-white"/>
                                   </div>
                                   <div>
-                                      <h3 className="text-2xl font-bold text-gray-900 mb-2">{point.title}</h3>
-                                      <p className="text-gray-600 text-lg leading-relaxed">{point.text}</p>
+                                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{point.title}</h3> {/* Tiêu đề điểm */}
+                                      <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">{point.text}</p> {/* Mô tả điểm */}
                                   </div>
                               </Card>
                           </motion.div>
@@ -241,13 +264,13 @@ export default function MentorsPage() {
                 transition={{ duration: 0.5 }}
                 className="text-center max-w-3xl mx-auto"
               >
-                  <Sparkles className="mx-auto h-16 w-16 text-yellow-500 mb-6"/>
-                  <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 font-serif">Nhân sự Kế thừa</h2>
-                  <p className="text-xl text-gray-600 leading-relaxed">
+                  <Sparkles className="mx-auto h-16 w-16 text-yellow-500 mb-6 dark:text-yellow-400"/> {/* Icon Sparkles */}
+                  <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white font-serif">Nhân sự Kế thừa</h2> {/* Tiêu đề */}
+                  <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed"> {/* Mô tả */}
                     Nội dung về chương trình "Nhân sự Kế thừa" đang được chúng tôi xây dựng và sẽ sớm ra mắt. Đây là chương trình chiến lược nhằm phát hiện, đào tạo và phát triển những tài năng trẻ để trở thành thế hệ lãnh đạo tiếp theo cho MSC và các doanh nghiệp đối tác.
                   </p>
                   <Link href="/lien-he" className="mt-8 inline-block">
-                    <Button size="lg" className="btn-primary">Tìm hiểu thêm</Button>
+                    <Button size="lg" className="btn-primary">Tìm hiểu thêm</Button> {/* Nút chính giữ nguyên */}
                   </Link>
               </motion.div>
             )}
@@ -256,7 +279,7 @@ export default function MentorsPage() {
       </main>
 
       {/* CTA Section */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white dark:bg-gray-800"> {/* Nền CTA */}
         <div className="container text-center">
            <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -264,8 +287,8 @@ export default function MentorsPage() {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
            >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 font-serif">Sẵn sàng nâng tầm sự nghiệp?</h2>
-              <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white font-serif">Sẵn sàng nâng tầm sự nghiệp?</h2> {/* Tiêu đề CTA */}
+              <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto dark:text-gray-300"> {/* Mô tả CTA */}
                 Hãy để đội ngũ chuyên gia của MSC Center đồng hành cùng bạn. Khám phá các khóa học phù hợp hoặc liên hệ để được tư vấn trực tiếp.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -275,7 +298,11 @@ export default function MentorsPage() {
                     </Button>
                 </Link>
                 <Link href="/lien-he">
-                  <Button size="lg" variant="outline" className="text-lg px-10 py-6">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="text-lg px-10 py-6 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700" // Nút outline CTA
+                  >
                     Liên hệ tư vấn
                   </Button>
                 </Link>
