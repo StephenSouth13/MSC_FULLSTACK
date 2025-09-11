@@ -87,7 +87,7 @@ export default function ProjectsPage() {
 
   return (
     // Sử dụng màu nền tổng thể của dark mode
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
       <motion.section 
         // Giữ nguyên gradient màu xanh đậm, nhưng đảm bảo chữ vẫn nổi bật
