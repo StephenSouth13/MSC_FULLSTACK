@@ -3,11 +3,21 @@ import Link from 'next/link';
 import { motion } from "framer-motion"
 import { ChevronDown, Play, Pause } from "lucide-react"
 import { useState, useRef } from "react"
-import { useLanguage } from "./language-provider"
-import { Button } from "@/components/ui/button"
+import { useLanguage } from '@/components/language-provider'
 
 const HeroVideo = () => {
-  const { t } = useLanguage()
+  // Add error boundary or conditional check
+  let language = 'vi'; // default fallback
+  let t = (key: string) => key; // fallback translation function
+  
+  try {
+    const context = useLanguage();
+    language = context.language;
+    t = context.t;
+  } catch (error) {
+    console.warn('LanguageProvider not available, using fallback');
+  }
+
   const [isPlaying, setIsPlaying] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
 

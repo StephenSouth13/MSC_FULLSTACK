@@ -1,49 +1,33 @@
 'use client';
 
-import { useState, useRef, useEffect } from "react"; // Đảm bảo đã import useEffect
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Clock, Users, Award, BookOpen, Target, CheckCircle, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { motion, AnimatePresence, useAnimation, useInView, Variants } from 'framer-motion'; // Đảm bảo đã import useAnimation
+import { motion, AnimatePresence, useAnimation, useInView, Variants } from 'framer-motion';
+import { api, Program } from "@/lib/api";
 
 export default function TrainingPage() {
-  const programs = [
-    {
-      id: "leadership",
-      title: "Leadership & Management Excellence",
-      duration: "3 tháng",
-      students: "25-30",
-      level: "Nâng cao",
-      price: "15,000,000 VNĐ",
-      image: "/dao-tao/leadership.webp",
-      description: "Chương trình phát triển kỹ năng lãnh đạo toàn diện cho các nhà quản lý cấp trung và cao.",
-      highlights: [ "Strategic Leadership & Vision Setting", "Team Building & Motivation", "Change Management", "Decision Making Under Pressure", "Executive Communication", ],
-    },
-    {
-      id: "project-management",
-      title: "Project Management Professional (PMP)",
-      duration: "4 tháng",
-      students: "20-25",
-      level: "Chuyên nghiệp",
-      price: "18,000,000 VNĐ",
-      image: "/dao-tao/PMP.webp",
-      description: "Khóa học chuẩn bị cho chứng chỉ PMP với phương pháp Agile và Scrum hiện đại.",
-      highlights: [ "PMP Exam Preparation", "Agile & Scrum Methodology", "Risk Management", "Stakeholder Management", "Project Portfolio Management", ],
-    },
-    {
-      id: "digital-marketing",
-      title: "Digital Marketing Mastery",
-      duration: "2.5 tháng",
-      students: "30-35",
-      level: "Cơ bản đến Nâng cao",
-      price: "12,000,000 VNĐ",
-      image: "/dao-tao/digitalmarketing.webp",
-      description: "Làm chủ marketing số từ cơ bản đến nâng cao với các case study thực tế.",
-      highlights: [ "SEO & SEM Optimization", "Social Media Marketing", "Content Marketing Strategy", "Email Marketing Automation", "Analytics & Performance Tracking", ],
-    },
-  ];
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const programsRes = await api.getPrograms();
+        
+        if (programsRes.success && programsRes.data) setPrograms(programsRes.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const benefits = [
     { icon: Award, title: "Chứng chỉ uy tín", description: "Nhận chứng chỉ được công nhận quốc tế và trong nước", },
@@ -90,8 +74,10 @@ export default function TrainingPage() {
   };
 
   useEffect(() => {
+    let isActive = true;
+
     const sequence = async () => {
-      while (true) {
+      while (isActive) {
         await controlsM.start("animate");
         await new Promise(resolve => setTimeout(resolve, 200));
         await controlsS.start("animate");
@@ -102,9 +88,17 @@ export default function TrainingPage() {
     };
 
     if (isMscInView) {
-      sequence();
+      // đảm bảo chạy sau khi DOM gắn xong
+      requestAnimationFrame(() => {
+        sequence();
+      });
     }
+
+    return () => {
+      isActive = false; // cleanup để tránh memory leak
+    };
   }, [isMscInView, controlsM, controlsS, controlsC]);
+
 
   const cardVariant: Variants = {
     hidden: { opacity: 0, y: 50 },
@@ -238,7 +232,7 @@ export default function TrainingPage() {
         </div>
       </section>
 
-      {/* Programs Section */}
+      {/* Programs Section with Sidebar */}
       <section className="py-20 bg-gray-50">
         <div className="container">
           <div className="text-center mb-16">
@@ -247,38 +241,121 @@ export default function TrainingPage() {
               Các khóa học được thiết kế chuyên nghiệp, phù hợp với nhu cầu thực tế của doanh nghiệp
             </p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {programs.map((program) => (
-              <Card key={program.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
-                <div className="relative">
-                  <Image src={program.image} alt={program.title} width={400} height={300} className="w-full h-48 object-cover" />
-                  <div className="absolute top-4 left-4"><span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">{program.level}</span></div>
-                  <div className="absolute top-4 right-4"><span className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">{program.price}</span></div>
+
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Programs Grid */}
+            <div className="w-full">
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="mt-4 text-gray-600">Đang tải khóa học...</p>
                 </div>
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-gray-900">{program.title}</CardTitle>
-                  <div className="flex items-center space-x-4 text-sm text-gray-600">
-                    <div className="flex items-center space-x-1"><Clock className="h-4 w-4" /><span>{program.duration}</span></div>
-                    <div className="flex items-center space-x-1"><Users className="h-4 w-4" /><span>{program.students} học viên</span></div>
+              ) : programs.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 mb-4">
+                    <BookOpen className="h-16 w-16 mx-auto" />
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-6">{program.description}</p>
-                  <div className="mb-6">
-                    <h4 className="font-semibold text-gray-900 mb-3">Nội dung chính:</h4>
-                    <ul className="space-y-2">
-                      {program.highlights.slice(0, 3).map((highlight, index) => (
-                        <li key={index} className="flex items-center space-x-2 text-sm text-gray-600"><CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" /><span>{highlight}</span></li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="flex space-x-3">
-                    <Link href={`/dao-tao/${program.id}`} className="flex-1"><Button className="w-full btn-primary">Chi tiết khóa học</Button></Link>
-                    <Link href="/lien-he"><Button variant="outline" className="bg-transparent">Đăng ký ngay</Button></Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">Không có khóa học</h3>
+                  <p className="text-gray-600">Hiện tại chưa có khóa học nào được công bố.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {programs.map((program) => (
+                    <Card
+                      key={program.slug}
+                      className="overflow-hidden hover:shadow-xl transition-all duration-300"
+                    >
+                      {/* Ảnh + nhãn */}
+                      <div className="relative">
+                        <Image
+                          src={program.image}
+                          alt={program.title}
+                          width={400}
+                          height={300}
+                          className="w-full h-48 object-cover"
+                        />
+
+                        {/* Level */}
+                        {program.level && (
+                          <div className="absolute top-4 left-4">
+                            <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                              {program.level}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Price */}
+                        <div className="absolute top-4 right-4">
+                          <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            {program.price} VND
+                          </span>
+                        </div>
+
+                        {/* Category */}
+                        {program.category && (
+                          <div className="absolute bottom-4 left-4">
+                            <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                              {program.category}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Nội dung card */}
+                      <CardHeader>
+                        <CardTitle className="text-xl font-bold text-gray-900">
+                          {program.title}
+                        </CardTitle>
+
+                        <div className="flex items-center space-x-4 text-sm text-gray-600">
+                          <div className="flex items-center space-x-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{program.duration}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Users className="h-4 w-4" />
+                            <span>{program.students} học viên</span>
+                          </div>
+                        </div>
+                      </CardHeader>
+
+                      <CardContent>
+                        {/* Mô tả ngắn */}
+                        <p className="text-gray-600 mb-6">{program.description}</p>
+
+                        {/* Highlights */}
+                        <div className="mb-6">
+                          <h4 className="font-semibold text-gray-900 mb-3">Nội dung chính:</h4>
+                          <ul className="space-y-2">
+                            {program.highlights.slice(0, 3).map((highlight, index) => (
+                              <li
+                                key={index}
+                                className="flex items-center space-x-2 text-sm text-gray-600"
+                              >
+                                <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                                <span>{highlight}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Nút hành động */}
+                        <div className="flex space-x-3">
+                          <Link href={`/dao-tao/${program.slug}`} className="flex-1">
+                            <Button className="w-full btn-primary">Chi tiết khóa học</Button>
+                          </Link>
+                          <Link href="/lien-he">
+                            <Button variant="outline" className="bg-transparent">
+                              Đăng ký ngay
+                            </Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>

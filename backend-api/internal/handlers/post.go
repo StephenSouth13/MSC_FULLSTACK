@@ -65,7 +65,7 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 	// Check user role for filtering
 	userRoles, _ := c.Get("user_roles")
 	userID, _ := c.Get("user_id")
-	
+
 	if userRolesList, ok := userRoles.([]string); ok {
 		// Partners can only see their own posts
 		if auth.HasRole(userRolesList, "partner") && !auth.HasAnyRole(userRolesList, []string{"admin", "editor"}) {
@@ -177,7 +177,6 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 		Content:      req.Content,
 		Excerpt:      req.Excerpt,
 		ThumbnailURL: req.ThumbnailURL,
-		Category:     req.Category,
 		Status:       req.Status,
 		AuthorID:     authorID,
 	}
@@ -215,7 +214,7 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 // @Router /posts/{id} [put]
 func (h *PostHandler) UpdatePost(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	var post models.Post
 	if err := h.db.Where("id = ?", id).First(&post).Error; err != nil {
 		c.JSON(http.StatusNotFound, models.APIResponse{
@@ -228,7 +227,7 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 	// Check permission
 	userID, _ := c.Get("user_id")
 	userRoles, _ := c.Get("user_roles")
-	
+
 	if userRolesList, ok := userRoles.([]string); ok {
 		if auth.HasRole(userRolesList, "partner") && post.AuthorID.String() != userID.(string) {
 			c.JSON(http.StatusForbidden, models.APIResponse{
@@ -266,7 +265,6 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 	post.Content = req.Content
 	post.Excerpt = req.Excerpt
 	post.ThumbnailURL = req.ThumbnailURL
-	post.Category = req.Category
 	if req.Status != "" {
 		post.Status = req.Status
 	}

@@ -1,22 +1,28 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
-	"os"
 
 	"msc-backend-api/internal/models"
 	"msc-backend-api/pkg/auth"
+	"msc-backend-api/pkg/config"
+	"msc-backend-api/pkg/database"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type AuthHandler struct {
-	db *gorm.DB
+	db     *gorm.DB
+	config *config.Config
 }
 
 func NewAuthHandler(db *gorm.DB) *AuthHandler {
-	return &AuthHandler{db: db}
+	return &AuthHandler{
+		db:     db,
+		config: config.Load(),
+	}
 }
 
 // @Summary User login
@@ -41,7 +47,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	// Find user by email
 	var user models.User
-	if err := h.db.Preload("Roles").Where("email = ?", req.Email).First(&user).Error; err != nil {
+	session := database.GetFreshSession(h.db)
+	if err := session.Preload("Roles").Where("email = ?", req.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, models.APIResponse{
 			Success: false,
 			Message: "Invalid email or password",
@@ -65,11 +72,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	// Generate JWT token
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		jwtSecret = "your-super-secret-jwt-key-change-this-in-production"
-	}
-
+	jwtSecret := h.config.JWTSecret
 	token, err := auth.GenerateToken(user.ID.String(), user.Email, roleNames, jwtSecret)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.APIResponse{
@@ -82,12 +85,19 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	// Clear password hash from response
 	user.PasswordHash = ""
 
+	log.Printf("Login successful for user: %s (name: %s)", user.Email, user.Name)
+
+	// Tạo response với định dạng phù hợp cho frontend
 	c.JSON(http.StatusOK, models.APIResponse{
 		Success: true,
 		Message: "Login successful",
-		Data: models.AuthResponse{
-			Token: token,
-			User:  user,
+		Data: gin.H{
+			"token": token,
+			"user": gin.H{
+				"id":       user.ID.String(),
+				"email":    user.Email,
+				"fullName": user.Name, // Map từ Name trong DB sang fullName cho frontend
+			},
 		},
 	})
 }
@@ -112,7 +122,8 @@ func (h *AuthHandler) GetProfile(c *gin.Context) {
 	}
 
 	var user models.User
-	if err := h.db.Preload("Roles").Where("id = ?", userID).First(&user).Error; err != nil {
+	session := database.GetFreshSession(h.db)
+	if err := session.Preload("Roles").Where("id = ?", userID).First(&user).Error; err != nil {
 		c.JSON(http.StatusNotFound, models.APIResponse{
 			Success: false,
 			Message: "User not found",
@@ -125,6 +136,26 @@ func (h *AuthHandler) GetProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, models.APIResponse{
 		Success: true,
-		Data:    user,
+		Data: gin.H{
+			"id":       user.ID.String(),
+			"email":    user.Email,
+			"fullName": user.Name, // Map từ Name trong DB sang fullName cho frontend
+		},
+	})
+}
+
+// @Summary User logout
+// @Description Logout user (client-side token removal, server can implement token blacklisting if needed)
+// @Tags auth
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.APIResponse
+// @Router /auth/logout [post]
+func (h *AuthHandler) Logout(c *gin.Context) {
+	// Trong thực tế, có thể thêm logic để blacklist token
+	// Ở đây chỉ trả về thông báo thành công
+	c.JSON(http.StatusOK, models.APIResponse{
+		Success: true,
+		Message: "Đăng xuất thành công",
 	})
 }

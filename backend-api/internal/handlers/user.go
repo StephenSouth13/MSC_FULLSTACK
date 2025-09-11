@@ -1,11 +1,16 @@
 package handlers
 
 import (
+	"bytes"
+	"io"
+	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"msc-backend-api/internal/models"
-	"msc-backend-api/pkg/auth"
+	"msc-backend-api/pkg/database"
+	"msc-backend-api/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -19,304 +24,256 @@ func NewUserHandler(db *gorm.DB) *UserHandler {
 	return &UserHandler{db: db}
 }
 
-// @Summary Get users
-// @Description Get list of users with pagination and filtering
-// @Tags users
-// @Produce json
-// @Security BearerAuth
-// @Param page query int false "Page number" default(1)
-// @Param limit query int false "Items per page" default(10)
-// @Param search query string false "Search in name and email"
-// @Success 200 {object} models.PaginatedResponse
-// @Failure 401 {object} models.APIResponse
-// @Router /users [get]
+/************** DTOs **************/
+
+type RegisterRequest struct {
+	Name     string `json:"full_name" binding:"required" example:"Nguyễn Văn A"`
+	Email    string `json:"email" binding:"required,email" example:"user@example.com"`
+	Phone    string `json:"phone" example:"0901234567"`
+	Password string `json:"password" binding:"required,min=6" example:"password123"`
+}
+
+type UserData struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+	Name  string `json:"fullName"` // Map name từ DB sang fullName cho frontend
+}
+
+type RegisterResponse struct {
+	Success bool      `json:"success"`
+	Message string    `json:"message"`
+	Data    *UserData `json:"data,omitempty"`
+}
+
+/************** Handlers **************/
+
+// RegisterUser đăng ký tài khoản mới
+func (h *UserHandler) RegisterUser(c *gin.Context) {
+	log.Println("=== RegisterUser called ===")
+
+	// Debug body
+	body, err := c.GetRawData()
+	if err == nil {
+		log.Printf("Body: %s", string(body))
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
+	}
+
+	var req RegisterRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Dữ liệu không hợp lệ",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// Check email duy nhất
+	var existing models.User
+	session := database.GetFreshSession(h.db)
+	if err := session.Where("LOWER(email) = ?", strings.ToLower(req.Email)).
+		First(&existing).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{
+			"success": false,
+			"message": "Email đã được sử dụng",
+		})
+		return
+	}
+
+	// Hash mật khẩu
+	hashed, err := utils.HashPassword(req.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Không thể xử lý mật khẩu",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// Tạo user với trường name trong database
+	user := models.User{
+		Name:         req.Name, // Lưu vào trường name trong Supabase
+		Email:        req.Email,
+		PasswordHash: hashed,
+	}
+
+	if err := session.Create(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Không thể tạo tài khoản",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	log.Printf("User created successfully with name: %s", user.Name)
+
+	c.JSON(http.StatusCreated, RegisterResponse{
+		Success: true,
+		Message: "Đăng ký thành công",
+		Data: &UserData{
+			ID:    user.ID.String(),
+			Email: user.Email,
+			Name:  user.Name, // Trường name từ DB sẽ được map thành fullName ở JSON tag
+		},
+	})
+}
+
+// GetUsers lấy danh sách user có phân trang + search
 func (h *UserHandler) GetUsers(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
-	search := c.Query("search")
-
 	if page < 1 {
 		page = 1
 	}
-	if limit < 1 || limit > 100 {
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if limit <= 0 {
 		limit = 10
 	}
-
 	offset := (page - 1) * limit
+	search := c.Query("search")
 
-	query := h.db.Model(&models.User{}).Preload("Roles")
-
-	// Apply filters
+	query := h.db.Model(&models.User{})
 	if search != "" {
-		query = query.Where("name ILIKE ? OR email ILIKE ?", "%"+search+"%", "%"+search+"%")
+		like := "%" + search + "%"
+		query = query.Where("name ILIKE ? OR email ILIKE ?", like, like)
 	}
 
 	var total int64
-	query.Count(&total)
+	if err := query.Count(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
+		return
+	}
 
 	var users []models.User
-	if err := query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&users).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, models.APIResponse{
-			Success: false,
-			Message: "Failed to fetch users",
-		})
+	if err := query.
+		Select("id, name, email, created_at, updated_at").
+		Order("created_at DESC").
+		Offset(offset).
+		Limit(limit).
+		Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
 
-	// Clear password hashes
-	for i := range users {
-		users[i].PasswordHash = ""
+	list := make([]gin.H, 0, len(users))
+	for _, u := range users {
+		list = append(list, gin.H{
+			"id":        u.ID.String(),
+			"fullName":  u.Name,
+			"email":     u.Email,
+			"createdAt": u.CreatedAt,
+			"updatedAt": u.UpdatedAt,
+		})
 	}
 
-	totalPages := (int(total) + limit - 1) / limit
-
-	c.JSON(http.StatusOK, models.PaginatedResponse{
-		Data:       users,
-		Total:      total,
-		Page:       page,
-		Limit:      limit,
-		TotalPages: totalPages,
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"users": list,
+			"pagination": gin.H{
+				"page":  page,
+				"limit": limit,
+				"total": total,
+			},
+		},
 	})
 }
 
-// @Summary Get single user
-// @Description Get user details by ID
-// @Tags users
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "User ID"
-// @Success 200 {object} models.APIResponse{data=models.User}
-// @Failure 401 {object} models.APIResponse
-// @Failure 404 {object} models.APIResponse
-// @Router /users/{id} [get]
+// GetUser chi tiết user theo id
 func (h *UserHandler) GetUser(c *gin.Context) {
 	id := c.Param("id")
-
 	var user models.User
-	if err := h.db.Preload("Roles").Where("id = ?", id).First(&user).Error; err != nil {
-		c.JSON(http.StatusNotFound, models.APIResponse{
-			Success: false,
-			Message: "User not found",
-		})
-		return
-	}
-
-	// Clear password hash
-	user.PasswordHash = ""
-
-	c.JSON(http.StatusOK, models.APIResponse{
-		Success: true,
-		Data:    user,
-	})
-}
-
-// @Summary Create user
-// @Description Create a new user (admin only)
-// @Tags users
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param user body models.CreateUserRequest true "User data"
-// @Success 201 {object} models.APIResponse{data=models.User}
-// @Failure 400 {object} models.APIResponse
-// @Failure 401 {object} models.APIResponse
-// @Router /users [post]
-func (h *UserHandler) CreateUser(c *gin.Context) {
-	var req models.CreateUserRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, models.APIResponse{
-			Success: false,
-			Message: "Invalid request data",
-		})
-		return
-	}
-
-	// Check if email already exists
-	var existingUser models.User
-	if err := h.db.Where("email = ?", req.Email).First(&existingUser).Error; err == nil {
-		c.JSON(http.StatusBadRequest, models.APIResponse{
-			Success: false,
-			Message: "Email already exists",
-		})
-		return
-	}
-
-	// Hash password
-	passwordHash, err := auth.HashPassword(req.Password)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.APIResponse{
-			Success: false,
-			Message: "Failed to hash password",
-		})
-		return
-	}
-
-	user := models.User{
-		Name:         req.Name,
-		Email:        req.Email,
-		PasswordHash: passwordHash,
-		Bio:          req.Bio,
-	}
-
-	if err := h.db.Create(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, models.APIResponse{
-			Success: false,
-			Message: "Failed to create user",
-		})
-		return
-	}
-
-	// Assign roles if provided
-	if len(req.RoleIDs) > 0 {
-		var roles []models.Role
-		if err := h.db.Where("id IN ?", req.RoleIDs).Find(&roles).Error; err == nil {
-			h.db.Model(&user).Association("Roles").Append(roles)
+	if err := h.db.Select("id, name, email, created_at, updated_at").
+		First(&user, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Không tìm thấy người dùng"})
+			return
 		}
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
+		return
 	}
-
-	// Load user with roles
-	h.db.Preload("Roles").First(&user, user.ID)
-
-	// Clear password hash
-	user.PasswordHash = ""
-
-	c.JSON(http.StatusCreated, models.APIResponse{
-		Success: true,
-		Message: "User created successfully",
-		Data:    user,
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"id":        user.ID.String(),
+			"fullName":  user.Name,
+			"email":     user.Email,
+			"createdAt": user.CreatedAt,
+			"updatedAt": user.UpdatedAt,
+		},
 	})
 }
 
-// @Summary Update user
-// @Description Update user by ID (admin only)
-// @Tags users
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "User ID"
-// @Param user body models.CreateUserRequest true "User data"
-// @Success 200 {object} models.APIResponse{data=models.User}
-// @Failure 400 {object} models.APIResponse
-// @Failure 401 {object} models.APIResponse
-// @Failure 404 {object} models.APIResponse
-// @Router /users/{id} [put]
+// UpdateUser cập nhật name/email
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	id := c.Param("id")
-	
 	var user models.User
-	if err := h.db.Preload("Roles").Where("id = ?", id).First(&user).Error; err != nil {
-		c.JSON(http.StatusNotFound, models.APIResponse{
-			Success: false,
-			Message: "User not found",
-		})
+	if err := h.db.First(&user, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Không tìm thấy người dùng"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
 
-	var req models.CreateUserRequest
+	var req map[string]string
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, models.APIResponse{
-			Success: false,
-			Message: "Invalid request data",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Dữ liệu không hợp lệ"})
 		return
 	}
 
-	// Check if new email is unique (if changed)
-	if req.Email != user.Email {
-		var existingUser models.User
-		if err := h.db.Where("email = ? AND id != ?", req.Email, id).First(&existingUser).Error; err == nil {
-			c.JSON(http.StatusBadRequest, models.APIResponse{
-				Success: false,
-				Message: "Email already exists",
-			})
-			return
-		}
+	updates := map[string]interface{}{}
+	if name, ok := req["full_name"]; ok && strings.TrimSpace(name) != "" {
+		updates["name"] = name
 	}
 
-	// Update user
-	user.Name = req.Name
-	user.Email = req.Email
-	user.Bio = req.Bio
-
-	// Update password if provided
-	if req.Password != "" {
-		passwordHash, err := auth.HashPassword(req.Password)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, models.APIResponse{
-				Success: false,
-				Message: "Failed to hash password",
-			})
-			return
-		}
-		user.PasswordHash = passwordHash
-	}
-
-	if err := h.db.Save(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, models.APIResponse{
-			Success: false,
-			Message: "Failed to update user",
-		})
+	if len(updates) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Không có trường nào để cập nhật"})
 		return
 	}
 
-	// Update roles if provided
-	if len(req.RoleIDs) > 0 {
-		// Clear existing roles
-		h.db.Model(&user).Association("Roles").Clear()
-		
-		// Assign new roles
-		var roles []models.Role
-		if err := h.db.Where("id IN ?", req.RoleIDs).Find(&roles).Error; err == nil {
-			h.db.Model(&user).Association("Roles").Append(roles)
-		}
+	if err := h.db.Model(&user).Updates(updates).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
+		return
 	}
 
-	// Reload user with roles
-	h.db.Preload("Roles").First(&user, user.ID)
-
-	// Clear password hash
-	user.PasswordHash = ""
-
-	c.JSON(http.StatusOK, models.APIResponse{
-		Success: true,
-		Message: "User updated successfully",
-		Data:    user,
-	})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Cập nhật thành công"})
 }
 
-// @Summary Delete user
-// @Description Delete user by ID (admin only)
-// @Tags users
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "User ID"
-// @Success 200 {object} models.APIResponse
-// @Failure 401 {object} models.APIResponse
-// @Failure 404 {object} models.APIResponse
-// @Router /users/{id} [delete]
+// DeleteUser xóa user (chặn tự xóa bản thân)
 func (h *UserHandler) DeleteUser(c *gin.Context) {
 	id := c.Param("id")
-
-	// Prevent self-deletion
-	userID, _ := c.Get("user_id")
-	if id == userID.(string) {
-		c.JSON(http.StatusBadRequest, models.APIResponse{
-			Success: false,
-			Message: "Cannot delete your own account",
-		})
+	var user models.User
+	if err := h.db.First(&user, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Không tìm thấy người dùng"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
 
-	if err := h.db.Delete(&models.User{}, "id = ?", id).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, models.APIResponse{
-			Success: false,
-			Message: "Failed to delete user",
-		})
+	currentUserID := c.GetString("user_id")
+	if currentUserID != "" && currentUserID == user.ID.String() {
+		c.JSON(http.StatusForbidden, gin.H{"success": false, "message": "Không thể tự xóa tài khoản của bạn"})
 		return
 	}
 
-	c.JSON(http.StatusOK, models.APIResponse{
-		Success: true,
-		Message: "User deleted successfully",
+	if err := h.db.Delete(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Xóa người dùng thành công"})
+}
+
+// TestHandler test route
+func (h *UserHandler) TestHandler(c *gin.Context) {
+	log.Println("TestHandler called")
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "UserHandler is working correctly",
 	})
 }

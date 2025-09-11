@@ -1,6 +1,8 @@
 package models
 
 import (
+	"encoding/json"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,33 +23,16 @@ type Role struct {
 	Name string `gorm:"unique;not null" json:"name"`
 }
 
-// User model
-type User struct {
-	BaseModel
-	Name         string `gorm:"not null" json:"name"`
-	Email        string `gorm:"unique;not null" json:"email"`
-	PasswordHash string `gorm:"not null" json:"-"`
-	AvatarURL    string `json:"avatar_url,omitempty"`
-	Bio          string `json:"bio,omitempty"`
-	Roles        []Role `gorm:"many2many:user_roles;" json:"roles"`
-	
-	// Relationships
-	Courses     []Course     `gorm:"foreignKey:AuthorID" json:"courses,omitempty"`
-	Posts       []Post       `gorm:"foreignKey:AuthorID" json:"posts,omitempty"`
-	Enrollments []Enrollment `gorm:"foreignKey:UserID" json:"enrollments,omitempty"`
-}
-
 // Course model
 type Course struct {
 	BaseModel
-	Title        string `gorm:"not null" json:"title"`
-	Slug         string `gorm:"unique;not null" json:"slug"`
-	Description  string `json:"description,omitempty"`
-	ThumbnailURL string `json:"thumbnail_url,omitempty"`
-	Category     string `json:"category,omitempty"`
-	Status       string `gorm:"default:'pending_review'" json:"status"` // draft, pending_review, published, archived
+	Title        string    `gorm:"not null" json:"title"`
+	Slug         string    `gorm:"unique;not null" json:"slug"`
+	Description  string    `json:"description,omitempty"`
+	ThumbnailURL string    `json:"thumbnail_url,omitempty"`
+	Status       string    `gorm:"default:'pending_review'" json:"status"` // draft, pending_review, published, archived
 	AuthorID     uuid.UUID `gorm:"not null" json:"author_id"`
-	
+
 	// Relationships
 	Author      User         `gorm:"foreignKey:AuthorID" json:"author,omitempty"`
 	Lessons     []Lesson     `gorm:"foreignKey:CourseID;constraint:OnDelete:CASCADE" json:"lessons,omitempty"`
@@ -62,7 +47,7 @@ type Lesson struct {
 	Content  string    `gorm:"type:jsonb" json:"content,omitempty"` // JSONB content from Tiptap
 	VideoURL string    `json:"video_url,omitempty"`
 	Order    int       `gorm:"not null" json:"order"`
-	
+
 	// Relationships
 	Course Course `gorm:"foreignKey:CourseID" json:"course,omitempty"`
 }
@@ -70,15 +55,14 @@ type Lesson struct {
 // Post model
 type Post struct {
 	BaseModel
-	Title        string `gorm:"not null" json:"title"`
-	Slug         string `gorm:"unique;not null" json:"slug"`
-	Content      string `gorm:"type:jsonb" json:"content,omitempty"`
-	Excerpt      string `json:"excerpt,omitempty"`
-	ThumbnailURL string `json:"thumbnail_url,omitempty"`
-	Category     string `json:"category,omitempty"`
-	Status       string `gorm:"default:'pending_review'" json:"status"` // draft, pending_review, published, archived
+	Title        string    `gorm:"not null" json:"title"`
+	Slug         string    `gorm:"unique;not null" json:"slug"`
+	Content      string    `gorm:"type:jsonb" json:"content,omitempty"`
+	Excerpt      string    `json:"excerpt,omitempty"`
+	ThumbnailURL string    `json:"thumbnail_url,omitempty"`
+	Status       string    `gorm:"default:'pending_review'" json:"status"` // draft, pending_review, published, archived
 	AuthorID     uuid.UUID `gorm:"not null" json:"author_id"`
-	
+
 	// Relationships
 	Author User `gorm:"foreignKey:AuthorID" json:"author,omitempty"`
 }
@@ -104,10 +88,81 @@ type Enrollment struct {
 	CourseID   uuid.UUID `gorm:"not null" json:"course_id"`
 	EnrolledAt time.Time `gorm:"default:now()" json:"enrolled_at"`
 	Progress   float32   `gorm:"default:0" json:"progress"` // 0.0 to 1.0
-	
+
 	// Relationships
 	User   User   `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	Course Course `gorm:"foreignKey:CourseID" json:"course,omitempty"`
+}
+
+// Project model
+type Project struct {
+	BaseModel
+	Slug        string       `gorm:"unique;not null" json:"slug"`
+	Title       string       `gorm:"not null" json:"title"`
+	Description string       `json:"description"`
+	Image       string       `json:"image"`
+	Category    string       `json:"category"`
+	Status      string       `gorm:"default:'active'" json:"status"`
+	Mentors     string       `gorm:"type:jsonb" json:"-"`
+	MentorsJSON []MentorInfo `gorm:"-" json:"mentors"`
+}
+
+// MentorInfo represents mentor information in projects
+type MentorInfo struct {
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+}
+
+// BeforeCreate hook for Project
+func (p *Project) BeforeCreate(tx *gorm.DB) error {
+	if p.ID == uuid.Nil {
+		p.ID = uuid.New()
+	}
+	return nil
+}
+
+// AfterFind hook to unmarshal JSON
+func (p *Project) AfterFind(tx *gorm.DB) error {
+	if p.Mentors != "" {
+		if err := json.Unmarshal([]byte(p.Mentors), &p.MentorsJSON); err != nil {
+			log.Printf("Error unmarshaling mentors JSON: %v", err)
+		}
+	}
+	return nil
+}
+
+// BeforeSave hook to marshal JSON
+func (p *Project) BeforeSave(tx *gorm.DB) error {
+	if len(p.MentorsJSON) > 0 {
+		mentorsBytes, err := json.Marshal(p.MentorsJSON)
+		if err != nil {
+			return err
+		}
+		p.Mentors = string(mentorsBytes)
+	}
+	return nil
+}
+
+// AllBlogPost model
+type AllBlogPost struct {
+	ID           uint      `gorm:"primaryKey" json:"id"`
+	Slug         string    `gorm:"unique;not null" json:"slug"`
+	Title        string    `gorm:"not null" json:"title"`
+	Excerpt      string    `json:"excerpt,omitempty"`
+	Image        string    `json:"image,omitempty"`
+	Author       string    `json:"author,omitempty"`
+	AuthorAvatar string    `json:"author_avatar,omitempty"`
+	PublishDate  time.Time `json:"publish_date"`
+	Category     string    `json:"category,omitempty"`
+	DetailsBlog  string    `json:"details_blog,omitempty"`
+	ReadTime     string    `json:"read_time,omitempty"`
+	Views        int       `gorm:"default:0" json:"views"`
+	Likes        int       `gorm:"default:0" json:"likes"`
+}
+
+// TableName specifies the table name for AllBlogPost
+func (AllBlogPost) TableName() string {
+	return "allblogposts"
 }
 
 // BeforeCreate hooks for UUID generation
@@ -153,6 +208,13 @@ func (e *Enrollment) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+func (p *Program) BeforeCreate(tx *gorm.DB) error {
+	if p.ID == uuid.Nil {
+		p.ID = uuid.New()
+	}
+	return nil
+}
+
 // DTO structures for requests/responses
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
@@ -160,11 +222,11 @@ type LoginRequest struct {
 }
 
 type CreateUserRequest struct {
-	Name     string   `json:"name" binding:"required"`
-	Email    string   `json:"email" binding:"required,email"`
-	Password string   `json:"password" binding:"required,min=6"`
-	Bio      string   `json:"bio,omitempty"`
-	RoleIDs  []uint   `json:"role_ids"`
+	Name     string `json:"name" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+	Bio      string `json:"bio,omitempty"`
+	RoleIDs  []uint `json:"role_ids"`
 }
 
 type CreateCourseRequest struct {
@@ -172,7 +234,6 @@ type CreateCourseRequest struct {
 	Slug         string `json:"slug" binding:"required"`
 	Description  string `json:"description,omitempty"`
 	ThumbnailURL string `json:"thumbnail_url,omitempty"`
-	Category     string `json:"category,omitempty"`
 	Status       string `json:"status,omitempty"`
 }
 
@@ -182,7 +243,6 @@ type CreatePostRequest struct {
 	Content      string `json:"content,omitempty"`
 	Excerpt      string `json:"excerpt,omitempty"`
 	ThumbnailURL string `json:"thumbnail_url,omitempty"`
-	Category     string `json:"category,omitempty"`
 	Status       string `json:"status,omitempty"`
 }
 
@@ -196,6 +256,16 @@ type CreateMentorRequest struct {
 	LinkedinURL string   `json:"linkedin_url,omitempty"`
 	Specialties []string `json:"specialties,omitempty"`
 	Status      string   `json:"status,omitempty"`
+}
+
+type CreateProjectRequest struct {
+	Slug        string       `json:"slug" binding:"required"`
+	Title       string       `json:"title" binding:"required"`
+	Description string       `json:"description"`
+	Image       string       `json:"image"`
+	Category    string       `json:"category"`
+	Status      string       `json:"status"`
+	Mentors     []MentorInfo `json:"mentors"`
 }
 
 type AuthResponse struct {
@@ -218,10 +288,10 @@ type PaginatedResponse struct {
 }
 
 type DashboardStats struct {
-	TotalCourses     int64 `json:"total_courses"`
-	TotalPosts       int64 `json:"total_posts"`
-	TotalUsers       int64 `json:"total_users"`
-	TotalEnrollments int64 `json:"total_enrollments"`
-	PendingReviews   int64 `json:"pending_reviews"`
+	TotalCourses     int64   `json:"total_courses"`
+	TotalPosts       int64   `json:"total_posts"`
+	TotalUsers       int64   `json:"total_users"`
+	TotalEnrollments int64   `json:"total_enrollments"`
+	PendingReviews   int64   `json:"pending_reviews"`
 	Revenue          float64 `json:"revenue"`
 }

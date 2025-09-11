@@ -7,126 +7,35 @@ import { Calendar, Users, Award, Target, TrendingUp, CheckCircle, ArrowRight } f
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-
-// Metadata có thể giữ lại hoặc chuyển sang component server nếu cần
-// export const metadata: Metadata = {
-//   title: "Dự án - MSC Center",
-//   description: "Khám phá các dự án đào tạo và phát triển đã triển khai thành công tại MSC Center",
-// }
+import { useEffect, useState } from "react"
+import { api, Project } from "@/lib/api"
 
 export default function ProjectsPage() {
-  // Thay thế dữ liệu mockup bằng dữ liệu dự án thực tế
-  const projects = [
-    {
-      slug:"Fdeli",
-      title: "Công ty TNHH F-Deli",
-      description: "Mentoring & Coaching: Chuẩn hoá quy trình làm việc toàn diện, tối ưu hóa hiệu suất và xây dựng văn hóa doanh nghiệp bền vững.",
-      image: "/Projects/Fdeli.webp",
-      category: "Mentoring & Coaching",
-      status: "Hoàn thành",
-      mentors: [
-        { name: "TS. Phan Huỳnh Anh", avatar: "/Mentors/PHA.webp" },
-        { name: "ThS. Đoàn Đức Minh", avatar: "/Mentors/DDM.webp" },
-      ],
-    },
-    {
-      id: "2",
-      title: "Khu du lịch Happy Land",
-      description: "Đào tạo và nâng cao năng lực cho đội ngũ Sales & Marketing, tập trung vào chiến lược thu hút khách hàng và kỹ năng bán hàng hiện đại.",
-      image: "/Projects/Happyland.webp",
-      category: "Đào tạo In-house",
-      status: "Hoàn thành",
-      mentors: [
-        { name: "TS. Phan Huỳnh Anh", avatar: "/Mentors/PHA.webp" },
-        { name: "MSC Teams", avatar: "/MSCers/mscteam.webp" },
-      ],
-    },
-    {
-      id: "3",
-      title: "Einstein School HCM - ESH",
-      description: "Tư vấn chiến lược tuyển sinh và đào tạo đội ngũ Sales & Marketing, giúp trường đạt được mục tiêu tăng trưởng và nhận diện thương hiệu.",
-      image: "/Projects/einsteinschool.webp",
-      category: "Tư vấn & Đào tạo",
-      status: "Hoàn thành",
-      mentors: [
-        { name: "TS. Phan Huỳnh Anh", avatar: "/Mentors/PHA.webp" },
-        { name: "Th.S Đoàn Đức Minh", avatar: "/Mentors/DDM.webp" },
-      ],
-    },
-    {
-      id: "4",
-      title: "Công ty Tâm Châu",
-      description: "Mentoring & Coaching cho đội ngũ quản lý cấp trung, tập trung vào kỹ năng quản lý dự án hiệu quả và phát triển năng lực lãnh đạo.",
-      image: "/Projects/Tam-Chau.webp",
-      category: "Quản lý dự án",
-      status: "Đang triển khai",
-      mentors: [
-        { name: "TS. Phan Huỳnh Anh", avatar: "/Mentors/PHA.webp" },
-        { name: "MSC Teams", avatar: "/MSCers/mscteam.webp" },
-      ],
-    },
-    {
-      id: "5",
-      title: "Đôi Dép - Không thể thiếu nhau",
-      description: "Dịch vụ coaching 1-1 chuyên sâu, giúp các cá nhân khai phá tiềm năng, vượt qua rào cản và đạt được các mục tiêu trong sự nghiệp và cuộc sống.",
-      image: "/Projects/DoiDep.webp",
-      category: "Coaching 1-1",
-      status: "Đang triển khai",
-      mentors: [
-        { name: "TS. Phan Huỳnh Anh", avatar: "/Mentors/PHA.webp" },
-        { name: "MSC Teams", avatar: "/MSCers/mscteam.webp" },
-      ],
-    },
-    {
-      id: "6",
-      title: "Tập đoàn VNPT",
-      description: "Tổ chức chuỗi workshop về xây dựng và phát triển văn hóa doanh nghiệp, thúc đẩy sự gắn kết và đổi mới trong toàn Tập đoàn.",
-      image: "/Projects/VNPT.webp",
-      category: "Workshop",
-      status: "Hoàn thành",
-      mentors: [
-        { name: "TS. Phan Huỳnh Anh", avatar: "/Mentors/PHA.webp" },
-        { name: "Nguyễn Chí Thành", avatar: "/Mentors/NCT.webp" },
-      ],
-    },
-    {
-      id: "7",
-      title: "Hội ngộ Kỷ lục lần thứ 38",
-      description: "Đồng hành Mentoring & Coaching, nâng cao năng lực cho đội ngũ Quản lý Dự án, đảm bảo sự kiện diễn ra thành công và chuyên nghiệp.",
-      image: "/Projects/hoingokyluc.webp", // Giả định tên file ảnh
-      category: "Quản lý sự kiện",
-      status: "Hoàn thành",
-      mentors: [
-        { name: "TS. Phan Huỳnh Anh", avatar: "/Mentors/PHA.webp" },
-        { name: "MSC Teams", avatar: "/MSCers/mscteam.webp" },
-      ],
-    },
-    {
-      id: "8",
-      title: "Viện Bách Niên Trường Thọ",
-      description: "Cung cấp chương trình Mentoring & Coaching chuyên sâu cho đội ngũ Quản lý Dự án, giúp Viện xây dựng và vận hành các dự án một cách bài bản.",
-      image: "/Projects/vienbachnien.webp", // Giả định tên file ảnh
-      category: "Quản lý dự án",
-      status: "Hoàn thành",
-      mentors: [
-        { name: "TS. Phan Huỳnh Anh", avatar: "/Mentors/PHA.webp" },
-        { name: "MSC Teams", avatar: "/MSCers/mscteam.webp" },
-      ],
-    },
-    {
-      id: "9",
-      title: "Dự án Binemo",
-      description: "Đào tạo và tư vấn chiến lược cho đội ngũ Sales & Marketing của Binemo, tập trung vào việc mở rộng thị trường và tăng trưởng doanh số bền vững.",
-      image: "/Projects/binemo.webp", // Giả định tên file ảnh
-      category: "Sales & Marketing",
-      status: "Hoàn thành",
-      mentors: [
-        { name: "TS. Phan Huỳnh Anh", avatar: "/Mentors/PHA.webp" },
-        { name: "MSC Teams", avatar: "/MSCers/mscteam.webp" },
-      ],
-    },
-  
-  ]
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true)
+        const response = await api.getProjects()
+        
+        if (response.success && response.data?.data) {
+          setProjects(response.data.data)
+        } else {
+          setError(response.error || 'Failed to fetch projects')
+        }
+      } catch (err) {
+        setError('An error occurred while fetching projects')
+        console.error('Error fetching projects:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProjects()
+  }, [])
 
   // Các chỉ số thống kê (có thể cập nhật cho phù hợp)
   const stats = [
@@ -137,18 +46,42 @@ export default function ProjectsPage() {
   ]
 
   // Animation variants
-  const containerVariants: Variants = { // <--- THÊM KIỂU Ở ĐÂY
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 }
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
   }
-}
 
-const itemVariants: Variants = { // <--- THÊM KIỂU Ở ĐÂY
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
-}
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-600">Đang tải dự án...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 text-lg">{error}</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Thử lại
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -220,54 +153,60 @@ const itemVariants: Variants = { // <--- THÊM KIỂU Ở ĐÂY
             </p>
           </motion.div>
 
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
-          >
-            {projects.map((project) => (
-              <motion.div key={project.id} variants={itemVariants}>
-                <Card className="h-full flex flex-col group overflow-hidden border-2 border-transparent hover:border-blue-500 hover:shadow-2xl transition-all duration-300 rounded-2xl">
-                  <CardHeader className="p-0">
-                    <div className="relative aspect-[16/10] overflow-hidden">
-                      <Image
-                        src={project.image}
-                        alt={project.title}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-500 ease-in-out"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                       <Badge variant="secondary" className="absolute top-4 left-4 text-sm bg-white/90 text-black">{project.category}</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6 flex flex-col flex-grow">
-                    <CardTitle className="text-2xl font-bold text-gray-900 mb-3 leading-tight">{project.title}</CardTitle>
-                    <p className="text-gray-600 mb-6 flex-grow">{project.description}</p>
-                    
-                    <div className="mt-auto">
-                        <p className="text-sm font-semibold text-gray-700 mb-2">Chuyên gia phụ trách:</p>
-                        <div className="flex items-center space-x-2">
-                           {project.mentors.map(mentor => (
-                               <div key={mentor.name} className="flex items-center space-x-2">
-                                   <Image src={mentor.avatar} alt={mentor.name} width={32} height={32} className="rounded-full border-2 border-white"/>
-                                   <span className="text-sm text-gray-800">{mentor.name}</span>
-                               </div>
-                           ))}
-                        </div>
-                    </div>
-                    <Link href={`/du-an/${project.id}`} className="mt-6">
-                      <Button className="w-full btn-primary group-hover:bg-blue-700 transition-colors">
-                        Xem chi tiết dự án <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform"/>
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
+          {projects.length > 0 ? (
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+            >
+              {projects.map((project) => (
+                <motion.div key={project.id} variants={itemVariants}>
+                  <Card className="h-full flex flex-col group overflow-hidden border-2 border-transparent hover:border-blue-500 hover:shadow-2xl transition-all duration-300 rounded-2xl">
+                    <CardHeader className="p-0">
+                      <div className="relative aspect-[16/10] overflow-hidden">
+                        <Image
+                          src={project.image || '/placeholder-project.jpg'}
+                          alt={project.title}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-500 ease-in-out"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                         <Badge variant="secondary" className="absolute top-4 left-4 text-sm bg-white/90 text-black">{project.category}</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-6 flex flex-col flex-grow">
+                      <CardTitle className="text-2xl font-bold text-gray-900 mb-3 leading-tight">{project.title}</CardTitle>
+                      <p className="text-gray-600 mb-6 flex-grow">{project.description}</p>
+                      
+                      <div className="mt-auto">
+                          <p className="text-sm font-semibold text-gray-700 mb-2">Chuyên gia phụ trách:</p>
+                          <div className="flex items-center space-x-2">
+                             {project.mentors?.map((mentor, index) => (
+                                 <div key={index} className="flex items-center space-x-2">
+                                     <Image src={mentor.avatar || '/placeholder-avatar.jpg'} alt={mentor.name} width={32} height={32} className="rounded-full border-2 border-white"/>
+                                     <span className="text-sm text-gray-800">{mentor.name}</span>
+                                 </div>
+                             ))}
+                          </div>
+                      </div>
+                      <Link href={`/du-an/${project.slug}`} className="mt-6">
+                        <Button className="w-full btn-primary group-hover:bg-blue-700 transition-colors">
+                          Xem chi tiết dự án <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform"/>
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-xl text-gray-600">Hiện tại chưa có dự án nào được công bố.</p>
+            </div>
+          )}
         </div>
       </section>
 

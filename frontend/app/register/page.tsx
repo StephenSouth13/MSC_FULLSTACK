@@ -1,18 +1,126 @@
-import type { Metadata } from "next"
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
-import { Mail, Lock, User, Phone, Eye, Facebook, Chrome, ArrowRight, Shield, CheckCircle, Star } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Mail, Lock, User, Phone, Eye, EyeOff, Facebook, Chrome, ArrowRight, Shield, CheckCircle, Star, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
-export const metadata: Metadata = {
-  title: "Đăng ký - MSC Center | Life Long Learning",
-  description: "Tạo tài khoản MSC Center để bắt đầu hành trình học tập chuyên nghiệp với 5000+ học viên",
-  keywords: "đăng ký, MSC Center, học trực tuyến, khóa học, tạo tài khoản",
-}
+import { toast } from "sonner"
+import { apiClient, type RegisterData } from "@/lib/api"
 
 export default function RegisterPage() {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [formData, setFormData] = useState<RegisterData>({
+    fullName: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: ''
+  })
+  const [errors, setErrors] = useState<Partial<RegisterData>>({})
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<RegisterData> = {}
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Vui lòng nhập họ và tên'
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Vui lòng nhập email'
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email không hợp lệ'
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Vui lòng nhập số điện thoại'
+    } else if (!/^[0-9]{10,11}$/.test(formData.phone.replace(/\s/g, ''))) {
+      newErrors.phone = 'Số điện thoại không hợp lệ'
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Vui lòng nhập mật khẩu'
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự'
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu'
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleInputChange = (field: keyof RegisterData, value: string) => {
+    setFormData((prev: RegisterData) => ({ ...prev, [field]: value }))
+    if (errors[field]) {
+      setErrors((prev: Partial<RegisterData>) => ({ ...prev, [field]: undefined }))
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!validateForm()) {
+      return
+    }
+
+    setIsLoading(true)
+    
+    try {
+      console.log('Đang gửi dữ liệu đăng ký:', {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        password: '***ẩn***'
+      })
+
+      const response = await apiClient.register(formData)
+      
+      console.log('Phản hồi đăng ký:', response)
+      
+      if (response.success) {
+        toast.success('Đăng ký thành công!', {
+          description: 'Chào mừng bạn đến với MSC Center. Bạn sẽ được chuyển đến trang đăng nhập.'
+        })
+        
+        // Chuyển hướng đến trang đăng nhập sau khi đăng ký thành công
+        setTimeout(() => {
+          router.push('/login?message=registration-success')
+        }, 1500)
+      } else {
+        // Hiển thị thông báo lỗi chi tiết từ server
+        const errorMessage = response.message || 'Có lỗi xảy ra khi đăng ký'
+        console.error('Đăng ký thất bại:', errorMessage)
+        
+        toast.error('Đăng ký thất bại', {
+          description: errorMessage
+        })
+
+        // Xử lý lỗi email đã tồn tại
+        if (errorMessage.includes('Email đã được sử dụng')) {
+          setErrors({ email: 'Email này đã được đăng ký' })
+        }
+      }
+      
+    } catch (error: any) {
+      console.error('Lỗi đăng ký:', error)
+      toast.error('Đăng ký thất bại', {
+        description: 'Lỗi kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại.'
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Background Pattern */}
@@ -97,13 +205,11 @@ export default function RegisterPage() {
             {/* Logo */}
             <div className="text-center">
               <Link href="/" className="inline-block">
-                <Image
-                  src="Users/login.webp"
-                  alt="MSC Center"
-                  width={200}
-                  height={60}
-                  className="h-12 w-auto mx-auto mb-4"
-                />
+                <div className="h-12 w-auto mx-auto mb-4 flex items-center justify-center">
+                  <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+                    MSC Center
+                  </span>
+                </div>
               </Link>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Tạo tài khoản mới</h1>
               <p className="text-gray-600 dark:text-gray-400">Bắt đầu hành trình học tập cùng MSC Center</p>
@@ -118,7 +224,7 @@ export default function RegisterPage() {
               </CardHeader>
 
               <CardContent className="space-y-6">
-                <form className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-5">
                   {/* Full Name Field */}
                   <div className="space-y-2">
                     <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -130,9 +236,14 @@ export default function RegisterPage() {
                         id="fullName"
                         type="text"
                         placeholder="Nhập họ và tên"
-                        className="pl-10 h-12 border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-700/70"
+                        value={formData.fullName}
+                        onChange={(e) => handleInputChange('fullName', e.target.value)}
+                        className={`pl-10 h-12 border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-700/70 ${errors.fullName ? 'border-red-500' : ''}`}
                         required
                       />
+                      {errors.fullName && (
+                        <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
+                      )}
                     </div>
                   </div>
 
@@ -147,9 +258,14 @@ export default function RegisterPage() {
                         id="email"
                         type="email"
                         placeholder="Nhập email của bạn"
-                        className="pl-10 h-12 border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-700/70"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        className={`pl-10 h-12 border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-700/70 ${errors.email ? 'border-red-500' : ''}`}
                         required
                       />
+                      {errors.email && (
+                        <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                      )}
                     </div>
                   </div>
 
@@ -164,9 +280,14 @@ export default function RegisterPage() {
                         id="phone"
                         type="tel"
                         placeholder="Nhập số điện thoại"
-                        className="pl-10 h-12 border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-700/70"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        className={`pl-10 h-12 border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-700/70 ${errors.phone ? 'border-red-500' : ''}`}
                         required
                       />
+                      {errors.phone && (
+                        <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                      )}
                     </div>
                   </div>
 
@@ -179,17 +300,23 @@ export default function RegisterPage() {
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-teal-600 transition-colors" />
                       <Input
                         id="password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         placeholder="Tạo mật khẩu"
-                        className="pl-10 pr-10 h-12 border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-700/70"
+                        value={formData.password}
+                        onChange={(e) => handleInputChange('password', e.target.value)}
+                        className={`pl-10 pr-10 h-12 border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-700/70 ${errors.password ? 'border-red-500' : ''}`}
                         required
                       />
                       <button
                         type="button"
+                        onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       >
-                        <Eye className="h-5 w-5" />
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                       </button>
+                      {errors.password && (
+                        <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                      )}
                     </div>
                   </div>
 
@@ -205,17 +332,23 @@ export default function RegisterPage() {
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-teal-600 transition-colors" />
                       <Input
                         id="confirmPassword"
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         placeholder="Nhập lại mật khẩu"
-                        className="pl-10 pr-10 h-12 border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-700/70"
+                        value={formData.confirmPassword}
+                        onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                        className={`pl-10 pr-10 h-12 border-gray-300 focus:border-teal-500 focus:ring-teal-500 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-700/70 ${errors.confirmPassword ? 'border-red-500' : ''}`}
                         required
                       />
                       <button
                         type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       >
-                        <Eye className="h-5 w-5" />
+                        {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                       </button>
+                      {errors.confirmPassword && (
+                        <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
+                      )}
                     </div>
                   </div>
 
@@ -247,12 +380,20 @@ export default function RegisterPage() {
                   {/* Register Button */}
                   <Button
                     type="submit"
-                    className="w-full h-12 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
+                    disabled={isLoading}
+                    className="w-full h-12 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span className="flex items-center justify-center space-x-2">
-                      <span>Tạo tài khoản</span>
-                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </span>
+                    {isLoading ? (
+                      <span className="flex items-center justify-center space-x-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Đang tạo tài khoản...</span>
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center space-x-2">
+                        <span>Tạo tài khoản</span>
+                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      </span>
+                    )}
                   </Button>
                 </form>
 
