@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
 export default function PartnersPage() {
-  // Dữ liệu đối tác thực tế
   const corporatePartners = [
     { id: 1, name: "ASL", logo: "/carousel/ASL.webp" },
     { id: 2, name: "Binemo", logo: "/carousel/Binemo.webp" },
@@ -54,7 +53,6 @@ export default function PartnersPage() {
     { label: "Học viên được đào tạo", value: "5,000+", icon: Users },
   ];
 
-  // Animation variants
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
@@ -66,7 +64,7 @@ export default function PartnersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-500">
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-br from-blue-900 via-blue-800 to-teal-900 text-white">
         <div className="container">
@@ -87,32 +85,35 @@ export default function PartnersPage() {
         </div>
       </section>
 
+
       {/* Stats Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-gray-900">
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {stats.map((stat, index) => (
               <motion.div 
                 key={index} 
-                className="text-center p-6 bg-gray-50 rounded-2xl"
+                className="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <stat.icon className="h-8 w-8 text-blue-600" />
+                <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <stat.icon className="h-8 w-8 text-blue-600 dark:text-blue-300" />
                 </div>
-                <div className="text-4xl font-bold text-gray-900 mb-2">{stat.value}</div>
-                <p className="text-gray-600 text-lg">{stat.label}</p>
+                <div className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">{stat.value}</div>
+                <p className="text-gray-600 dark:text-gray-400 text-lg">{stat.label}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
+
+
       {/* Corporate Partners Section */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-gray-50 dark:bg-gray-950">
         <div className="container">
           <motion.div 
             className="text-center mb-16"
@@ -125,7 +126,7 @@ export default function PartnersPage() {
               <Handshake className="h-6 w-6" />
               <h2 className="text-3xl font-bold font-serif">Đối tác Doanh nghiệp & Tập đoàn</h2>
             </div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mt-4">
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mt-4">
               Những doanh nghiệp hàng đầu đã tin tưởng và lựa chọn MSC Center làm đối tác đào tạo và phát triển nguồn nhân lực.
             </p>
           </motion.div>
@@ -139,24 +140,25 @@ export default function PartnersPage() {
           >
             {corporatePartners.map(partner => (
               <motion.div key={partner.id} variants={itemVariants}>
-                <Card className="p-6 flex items-center justify-center h-40 bg-white hover:shadow-lg hover:scale-105 transition-all duration-300 rounded-2xl border">
+                <Card className="p-6 flex items-center justify-center h-40 bg-white dark:bg-gray-900 hover:shadow-lg hover:scale-105 transition-all duration-300 rounded-2xl border border-gray-200 dark:border-gray-700">
                    <Image
-                       src={partner.logo}
-                        alt={partner.name}
-                         width={560}
-                          height={350}
-                 className="max-h-24 w-auto object-contain"
-                     />
+                      src={partner.logo}
+                      alt={partner.name}
+                      width={560}
+                      height={350}
+                      className="max-h-24 w-auto object-contain filter dark:invert"
+                   />
               </Card>
-
               </motion.div>
             ))}
           </motion.div>
         </div>
       </section>
 
-       {/* Education & Association Partners Section */}
-      <section className="py-24 bg-white">
+      
+
+      {/* Education & Association Partners Section */}
+      <section className="py-24 bg-white dark:bg-gray-900">
         <div className="container">
           <motion.div 
             className="text-center mb-16"
@@ -169,7 +171,7 @@ export default function PartnersPage() {
               <Building2 className="h-6 w-6" />
               <h2 className="text-3xl font-bold font-serif">Đối tác Giáo dục & Hiệp hội</h2>
             </div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mt-4">
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mt-4">
               Hợp tác chặt chẽ với các trường đại học, viện nghiên cứu và hiệp hội ngành nghề để nâng cao chất lượng đào tạo.
             </p>
           </motion.div>
@@ -183,13 +185,13 @@ export default function PartnersPage() {
           >
             {educationAndAssociationPartners.map(partner => (
               <motion.div key={partner.id} variants={itemVariants}>
-                <Card className="p-6 flex items-center justify-center h-32 bg-white hover:shadow-lg hover:scale-105 transition-all duration-300 rounded-2xl border">
+                <Card className="p-6 flex items-center justify-center h-32 bg-white dark:bg-gray-900 hover:shadow-lg hover:scale-105 transition-all duration-300 rounded-2xl border border-gray-200 dark:border-gray-700">
                   <Image
                     src={partner.logo}
                     alt={partner.name}
                     width={700}
                     height={550}
-                    className="max-h-[6.8rem] w-auto object-contain"
+                    className="max-h-[6.8rem] w-auto object-contain filter dark:invert"
                   />
                 </Card>
               </motion.div>
@@ -198,6 +200,7 @@ export default function PartnersPage() {
         </div>
       </section>
       
+
       {/* CTA Section */}
       <section className="py-24 bg-gradient-to-r from-blue-600 to-teal-600 text-white">
         <div className="container text-center">
@@ -207,16 +210,16 @@ export default function PartnersPage() {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
            >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 font-serif">Trở thành Đối tác của MSC</h2>
-              <p className="text-xl text-blue-100 mb-10 max-w-3xl mx-auto">
-                Cùng chúng tôi kiến tạo những giá trị bền vững cho cộng đồng và doanh nghiệp thông qua các chương trình đào tạo chất lượng cao.
-              </p>
-              <Link href="/lien-he">
-                  <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-10 py-6">
-                    Liên hệ Hợp tác
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-              </Link>
+             <h2 className="text-4xl md:text-5xl font-bold mb-6 font-serif">Trở thành Đối tác của MSC</h2>
+             <p className="text-xl text-blue-100 mb-10 max-w-3xl mx-auto">
+               Cùng chúng tôi kiến tạo những giá trị bền vững cho cộng đồng và doanh nghiệp thông qua các chương trình đào tạo chất lượng cao.
+             </p>
+             <Link href="/lien-he">
+                 <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-10 py-6">
+                   Liên hệ Hợp tác
+                   <ArrowRight className="ml-2 h-5 w-5" />
+                 </Button>
+             </Link>
            </motion.div>
         </div>
       </section>
