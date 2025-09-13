@@ -64,34 +64,38 @@ const mentors: Mentor[] = [
 
 export default function MentorsSection() {
   return (
-    // mt-0 để không có margin-top, pt-6 để giảm padding trên xuống còn 1.5rem
-    <section className="bg-gray-50 mt-0 pt-6 pb-16">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-4">BAN GIẢNG HUẤN</h2>
-        <p className="text-center text-gray-600 mb-10">
-          Đội ngũ trực tiếp tư vấn, thiết kế và huấn luyện cho các chương trình đào tạo và dự án tại MSC
+    <section className="bg-gradient-to-b from-gray-50 to-gray-100 py-20">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Tiêu đề */}
+        <h2 className="text-4xl md:text-5xl font-extrabold text-center text-gray-900 mb-6 tracking-tight">
+          BAN GIẢNG HUẤN
+        </h2>
+        <p className="text-center text-gray-700 text-lg max-w-3xl mx-auto mb-14 leading-relaxed">
+          Đội ngũ trực tiếp tư vấn, thiết kế và huấn luyện cho các chương trình đào tạo
+          và dự án tại MSC.
         </p>
 
-        {/* Các card mentor: bỏ khoảng ngang (gap-x-0) và giữ gap-y cho dọc */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-0 gap-y-10">
+        {/* Grid mentor */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-16 lg:gap-x-12 place-items-center">
           {mentors.map((m) => (
             <Link
               key={m.id}
               href={`/mentors/${m.slug}`}
-              className="block text-center hover:scale-105 transition-transform"
+              className="group flex flex-col items-center text-center transition-transform duration-300 hover:scale-105"
             >
-              <div className="w-36 h-36 mx-auto mb-4">
+              {/* Ảnh to và đổ bóng xịn */}
+              <div className="relative w-48 h-48 md:w-56 md:h-56 mb-6">
                 <Image
                   src={m.avatar}
                   alt={m.name}
-                  width={300}
-                  height={300}
-                  className="rounded-full object-cover shadow-md"
+                  fill
+                  sizes="(max-width:768px) 192px, 224px"
+                  className="rounded-full object-cover shadow-2xl ring-4 ring-white group-hover:ring-indigo-300 transition-all duration-300"
                 />
               </div>
-              <h3 className="text-lg font-semibold">{m.name}</h3>
-              <p className="text-sm text-gray-700 mt-1">{m.title}</p>
-              <p className="text-sm text-gray-500">{m.degree}</p>
+              <h3 className="text-xl md:text-2xl font-semibold text-gray-900">{m.name}</h3>
+              <p className="text-md text-indigo-600 mt-1">{m.title}</p>
+              <p className="text-sm text-gray-600 mt-0.5">{m.degree}</p>
             </Link>
           ))}
         </div>

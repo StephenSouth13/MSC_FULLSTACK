@@ -82,6 +82,15 @@ const MSCersSection = () => {
       achievement: "Tốt nghiệp và trưởng thành từ HKDN 2022",
       testimonial: "MSC Center đã giúp tôi phát triển từ một developer thành tech leader tự tin.",
     },
+    {
+      id: 9,
+      name: "Nguyễn Tuấn Dũng",
+      position: "Nhân sự IT Frotend",
+      company: "MSC",
+      avatar: "/MSCers/NTD.webp",
+      achievement: "Tốt nghiệp và trưởng thành từ HKDN 2022",
+      testimonial: "MSC Center đã giúp tôi phát triển từ một developer thành tech leader tự tin.",
+    },
   ]
 
   const nextSlide = () => {

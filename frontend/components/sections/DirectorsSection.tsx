@@ -1,69 +1,60 @@
-// src/components/home/ProjectsSection.tsx
-"use client"
+'use client'
+
+import { mscersData } from "@/data/mscer"
 import { motion } from "framer-motion"
+import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import ProjectCard from "@/components/ProjectCard"
-import { allProjects } from "@/lib/data/projects"
 
-// Lấy 6 dự án đầu tiên
-const featuredProjects = allProjects.slice(0, 6)
+export default function DirectorsSection() {
+  const directorIds = ["duong-the-khai", "pham-hoang-minh-khanh", "quach-thanh-long"]
+  const directors = mscersData.filter(m => directorIds.includes(m.id))
 
-const ProjectsSection = () => {
   return (
-    // mt-0 bỏ margin-top, pt-6 giảm padding-top để sát section trên
-    <section className="mt-0 pt-0 pb-20 bg-gray-50 dark:bg-neutral-900">
-      <div className="container mx-auto px-4">
+    // bg-gray-100: xám nhạt, py-16: padding top/bottom, mt-0: sát section trên
+    <section className="bg-gray-100 py-16">
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Tiêu đề */}
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white font-serif">
-            Dự án đã triển khai
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Khám phá các dự án đào tạo và phát triển kỹ năng chuyên nghiệp mà MSC Center đã và đang triển khai.
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">BAN CHỦ NHIỆM</h2>
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+            Là đội ngũ nòng cốt chịu trách nhiệm vận hành và phát triển Trung tâm MSC.
+            Ban Chủ Nhiệm đóng vai trò điều phối toàn diện các dự án, kết nối nguồn lực
+            và đảm bảo MSC hoạt động hiệu quả, đúng định hướng.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {featuredProjects.map((project, index) => (
+        {/* Avatar tròn lớn + tên + chức danh */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-y-12 md:gap-x-12 place-items-center">
+          {directors.map((d, i) => (
             <motion.div
-              key={project.id}
+              key={d.id}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
               viewport={{ once: true }}
+              className="flex flex-col items-center text-center"
             >
-              <ProjectCard project={project} />
+              <Link href={`/mscer/${d.id}`}>
+                <Image
+                  src={d.avatar}
+                  alt={d.name}
+                  width={200}
+                  height={200}
+                  className="rounded-full border-4 border-gray-200 shadow-md hover:scale-105 transition-transform duration-300 cursor-pointer"
+                />
+              </Link>
+              <h3 className="mt-6 text-xl font-semibold text-gray-900">{d.name}</h3>
+              <p className="text-gray-600">{d.position}</p>
             </motion.div>
           ))}
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          viewport={{ once: true }}
-          className="text-center"
-        >
-          <Link href="/du-an">
-            <Button
-              size="lg"
-              className="bg-blue-800 hover:bg-blue-900 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-semibold px-8 py-6 text-base"
-            >
-              Xem tất cả dự án
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
-        </motion.div>
       </div>
     </section>
   )
 }
-
-export default ProjectsSection

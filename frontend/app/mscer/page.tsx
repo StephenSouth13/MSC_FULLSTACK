@@ -90,6 +90,16 @@ export default function MSCerPage() {
       testimonial: "Khóa học Tech Leadership đã giúp tôi nâng cao kỹ năng mềm và quản lý, một bước đệm quan trọng để phát triển sự nghiệp.",
       skills: ["Software Engineering", "System Design", "Tech Leadership"],
     },
+    {
+      id: "nguyen-tuan-dung",
+      name: "Nguyễn Tuấn Dũng",
+      position: "MSCer",
+      company: "Trung tâm MSC",
+      avatar: "/MSCers/NTD.webp",
+      testimonial: "Khóa học Tech Leadership đã giúp tôi nâng cao kỹ năng mềm và quản lý, một bước đệm quan trọng để phát triển sự nghiệp.",
+      skills: ["Software Engineering", "System Design", "Tech Leadership"],
+    },
+
   ];
 
   const successStats = [
