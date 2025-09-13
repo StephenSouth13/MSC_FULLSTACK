@@ -1,3 +1,4 @@
+//D:\Website\msc\MSC_FULLSTACK\frontend\data\mentor-detail.ts
 export type MentorDetail = {
   id: string;
   slug: string;
@@ -30,7 +31,7 @@ export const mentorDetails: MentorDetail[] = [
     name: "Phan Huỳnh Anh",
     title: "Tiến sĩ Kinh tế",
     avatar: "/Mentors/PHA.webp",
-    role: "Chủ tịch HĐQT Smentor | CEO Quỹ FFVM | Giảng viên Đại học",
+    role: "Chủ tịch HĐQT Smentor | CEO Quỹ FFVN | Giảng viên Đại học",
     personalInfo: {
       "Họ và tên": "Phan Huỳnh Anh",
       "Học vị": "Tiến sĩ (2019)",
