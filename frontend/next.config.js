@@ -1,9 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,          // kiểm tra lỗi sớm
+  swcMinify: true,                // nén JavaScript nhanh hơn
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
   },
-  // Enable CORS for development
+
+  // Bật các header CORS cho API (giữ nguyên)
   async headers() {
     return [
       {
@@ -16,9 +19,16 @@ const nextConfig = {
       },
     ]
   },
+
   images: {
     domains: ['res.cloudinary.com'],
-    unoptimized: true,
+    // Để Next tối ưu ảnh, bỏ unoptimized hoặc đặt false
+    unoptimized: false,
+    formats: ['image/avif', 'image/webp'], // định dạng ảnh nén tốt hơn
+  },
+
+  experimental: {
+    optimizeCss: true, // giảm kích thước CSS
   },
 }
 

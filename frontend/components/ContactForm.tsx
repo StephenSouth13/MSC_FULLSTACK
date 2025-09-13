@@ -180,7 +180,6 @@ export default function ContactPage() {
         </div>
       </section>
 
-      ---
 
       {/* Map Section */}
       <section className="pb-24 bg-white dark:bg-gray-900">

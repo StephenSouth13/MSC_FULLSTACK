@@ -52,7 +52,7 @@ const MSCersSection = () => {
       position: "Nhân sự Marketing",
       company: "MSC",
       avatar: "/MSCers/PNTT.webp",
-      achievement: "Tốt nghiệp khóa Financial Management 2022",
+      achievement: "Tốt nghiệp và trưởng thành từ HKDN 2022",
       testimonial: "MSC đã trang bị cho tôi nền tảng vững chắc để phát triển sự nghiệp trong lĩnh vực tài chính.",
     },
     {
@@ -61,7 +61,7 @@ const MSCersSection = () => {
       position: "Thư ký dự án",
       company: "MSC ",
       avatar: "/MSCers/THMT.webp",
-      achievement: "Học viên xuất sắc khóa Design Thinking 2023",
+      achievement: "Tốt nghiệp và trưởng thành từ HKDN 2023",
       testimonial: "Khóa học Design Thinking tại MSC đã mở ra góc nhìn mới về thiết kế và trải nghiệm người dùng.",
     },
     {
@@ -70,7 +70,7 @@ const MSCersSection = () => {
       position: "Nhân sự Marketing",
       company: "Google Vietnam",
       avatar: "/MSCers/HNQ.webp",
-      achievement: "Cựu học viên khóa Tech Leadership 2022",
+      achievement: "Tốt nghiệp và trưởng thành từ HKDN 2024",
       testimonial: "MSC Center đã giúp tôi phát triển từ một developer thành tech leader tự tin.",
     },
     {
@@ -79,7 +79,7 @@ const MSCersSection = () => {
       position: "Nhân sự Marketing",
       company: "MSC",
       avatar: "/MSCers/PBH.webp",
-      achievement: "Cựu học viên khóa Tech Leadership 2022",
+      achievement: "Tốt nghiệp và trưởng thành từ HKDN 2022",
       testimonial: "MSC Center đã giúp tôi phát triển từ một developer thành tech leader tự tin.",
     },
   ]
