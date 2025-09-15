@@ -1,3 +1,4 @@
+//frontend/app/mentors/[id]/page.tsx
 import { mentorDetails } from "@/data/mentor-detail";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
