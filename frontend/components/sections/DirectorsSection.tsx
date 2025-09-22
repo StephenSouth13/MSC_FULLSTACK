@@ -5,22 +5,19 @@ import MentorCard from "@/components/MentorCard";
 import { motion } from "framer-motion";
 
 export default function DirectorsSection() {
-  // Lọc ra các giám đốc từ danh sách MSCer.
-  // Đây là ví dụ, bạn có thể thay đổi logic lọc tùy theo cấu trúc dữ liệu của mình.
   const directorIds = ["pham-hoang-minh-khanh", "duong-the-khai", "quach-thanh-long"];
   const directors = mscersData.filter(mscer => directorIds.includes(mscer.id));
 
-  // Nếu không có dữ liệu giám đốc, có thể hiển thị một thông báo hoặc trả về null.
   if (directors.length === 0) {
     return (
-      <div className="container py-12 text-center text-gray-500">
+      <div className="container py-12 text-center text-gray-500 dark:text-gray-400">
         Không có dữ liệu giám đốc để hiển thị.
       </div>
     );
   }
 
   return (
-    <section className="py-12 bg-white">
+    <section className="py-12 bg-white dark:bg-gray-950">
       <div className="container">
         <motion.div
           className="text-center mb-10"
@@ -29,10 +26,10 @@ export default function DirectorsSection() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-50 mb-4">
             Ban Giám đốc
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Gặp gỡ những người lãnh đạo đã tạo nên MSC Center và định hướng sự phát triển của cộng đồng.
           </p>
         </motion.div>
@@ -52,8 +49,8 @@ export default function DirectorsSection() {
                 title={director.position}
                 degree={director.company}
                 avatar={director.avatar}
-                specialties={director.skills}
-                linkPrefix="mscer" // Đường dẫn sẽ là /mscer/[id]
+                specialties={director.skills} // Thuộc tính này sẽ hoạt động nếu đã được định nghĩa trong MentorCard.tsx
+                linkPrefix="mscers"
               />
             </motion.div>
           ))}
