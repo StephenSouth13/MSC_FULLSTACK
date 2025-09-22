@@ -1,37 +1,54 @@
 'use client';
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react"; // Đảm bảo đã import useEffect
 import Image from "next/image";
 import Link from "next/link";
 import { Clock, Users, Award, BookOpen, Target, CheckCircle, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { motion, AnimatePresence, useAnimation, useInView, Variants } from 'framer-motion';
-import { api, Program } from "@/lib/api";
+import AddToCartButton from "@/components/cart/AddToCartButton";
+import { motion, AnimatePresence, useAnimation, useInView, Variants } from 'framer-motion'; // Đảm bảo đã import useAnimation
 
 export default function TrainingPage() {
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const programsRes = await api.getPrograms();
-        
-        if (programsRes.success && programsRes.data) setPrograms(programsRes.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const programs = [
+    {
+      id: "leadership",
+      title: "Leadership & Management Excellence",
+      duration: "3 tháng",
+      students: "25-30",
+      level: "Nâng cao",
+      price: "15,000,000 VNĐ",
+      image: "/dao-tao/leadership.webp",
+      description: "Chương trình phát triển kỹ năng lãnh đạo toàn diện cho các nhà quản lý cấp trung và cao.",
+      highlights: [ "Strategic Leadership & Vision Setting", "Team Building & Motivation", "Change Management", "Decision Making Under Pressure", "Executive Communication", ],
+    },
+    {
+      id: "project-management",
+      title: "Project Management Professional (PMP)",
+      duration: "4 tháng",
+      students: "20-25",
+      level: "Chuyên nghiệp",
+      price: "18,000,000 VNĐ",
+      image: "/dao-tao/PMP.webp",
+      description: "Khóa học chuẩn bị cho chứng chỉ PMP với phương pháp Agile và Scrum hiện đại.",
+      highlights: [ "PMP Exam Preparation", "Agile & Scrum Methodology", "Risk Management", "Stakeholder Management", "Project Portfolio Management", ],
+    },
+    {
+      id: "digital-marketing",
+      title: "Digital Marketing Mastery",
+      duration: "2.5 tháng",
+      students: "30-35",
+      level: "Cơ bản đến Nâng cao",
+      price: "12,000,000 VNĐ",
+      image: "/dao-tao/digitalmarketing.webp",
+      description: "Làm chủ marketing số từ cơ bản đến nâng cao với các case study thực tế.",
+      highlights: [ "SEO & SEM Optimization", "Social Media Marketing", "Content Marketing Strategy", "Email Marketing Automation", "Analytics & Performance Tracking", ],
+    },
+  ];
 
   const benefits = [
     { icon: Award, title: "Chứng chỉ uy tín", description: "Nhận chứng chỉ được công nhận quốc tế và trong nước", },
-    { icon: Users, title: "Học từ chuyên gia", description: "Đội ngũ giảng viên giàu kinh nghiệm thực tiễn", },
+    { icon: Users, title: "Học từ chuyên gia", description: "Đội ngũ giảng viên giàu kinh nghi���m thực tiễn", },
     { icon: Target, title: "Thực hành thực tế", description: "70% thời gian dành cho thực hành và case study", },
     { icon: BookOpen, title: "Tài liệu độc quyền", description: "Bộ tài liệu học tập được biên soạn riêng", },
   ];
@@ -47,9 +64,9 @@ export default function TrainingPage() {
   const goToNext = () => { setCurrentImageIndex((prev) => (prev + 1) % galleryPhotos.length); };
   
   const coreValues = [
-    { title: "Mentoring & Coaching kỹ năng Marketing và Sales", description: "Định hình tư duy thị trường, nâng cao kỹ năng truyền thông – bán hàng thông qua các chương trình mentoring & coaching thực chiến.", color: "text-[#0077B6]", }, // Giữ màu gốc
-    { title: "Đào tạo kỹ năng Nghiên cứu, Thẩm định & Đánh giá dự án", description: "Trang bị phương pháp tiếp cận và phân tích dự án theo mô hình Holding: Sản phẩm – Con người – Tài chính, giúp học viên tư duy hệ thống và ra quyết định chiến lược.", color: "text-[#2A9D8F]", }, // Giữ màu gốc
-    { title: "Đào tạo Quản lý dự án (Trước-Trong-Sau)", description: "Phát triển năng lực lãnh đạo dự án qua toàn bộ vòng đời: từ hoạch định – triển khai – tổng kết, kết hợp thực hành và công cụ quản trị hiện đại.", color: "text-[#F4A261]", }, // Giữ màu gốc
+    { title: "Mentoring & Coaching kỹ năng Marketing và Sales", description: "Định hình tư duy thị trường, nâng cao kỹ năng truyền thông – bán hàng thông qua các chương trình mentoring & coaching thực chiến.", color: "text-[#0077B6]", },
+    { title: "Đào tạo kỹ năng Nghiên cứu, Thẩm định & Đánh giá dự án", description: "Trang bị phương pháp tiếp cận và phân tích dự án theo mô hình Holding: Sản phẩm – Con người – Tài chính, giúp học viên tư duy hệ thống và ra quyết định chiến lược.", color: "text-[#2A9D8F]", },
+    { title: "Đào tạo Quản lý dự án (Trước-Trong-Sau)", description: "Phát triển năng lực lãnh đạo dự án qua toàn bộ vòng đời: từ hoạch định – triển khai – tổng kết, kết hợp thực hành và công cụ quản trị hiện đại.", color: "text-[#F4A261]", },
   ];
 
   // ========== PHẦN ANIMATION CHO VÒNG LẶP ==========
@@ -74,10 +91,8 @@ export default function TrainingPage() {
   };
 
   useEffect(() => {
-    let isActive = true;
-
     const sequence = async () => {
-      while (isActive) {
+      while (true) {
         await controlsM.start("animate");
         await new Promise(resolve => setTimeout(resolve, 200));
         await controlsS.start("animate");
@@ -88,17 +103,9 @@ export default function TrainingPage() {
     };
 
     if (isMscInView) {
-      // đảm bảo chạy sau khi DOM gắn xong
-      requestAnimationFrame(() => {
-        sequence();
-      });
+      sequence();
     }
-
-    return () => {
-      isActive = false; // cleanup để tránh memory leak
-    };
   }, [isMscInView, controlsM, controlsS, controlsC]);
-
 
   const cardVariant: Variants = {
     hidden: { opacity: 0, y: 50 },
@@ -109,8 +116,7 @@ export default function TrainingPage() {
   };
 
   return (
-    // Nền tổng thể của trang
-    <div className="bg-white dark:bg-gray-900">
+    <div className="bg-white">
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-br from-blue-900 via-blue-800 to-teal-900 text-white">
         <div className="container">
@@ -124,7 +130,7 @@ export default function TrainingPage() {
               Chương trình Đào tạo
             </motion.h1>
             <motion.p 
-              className="text-xl text-blue-100 mb-8 leading-relaxed" // Giữ màu xanh nhạt này trên nền xanh đậm là ổn
+              className="text-xl text-blue-100 mb-8 leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
@@ -133,8 +139,8 @@ export default function TrainingPage() {
             </motion.p>
              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-teal-300">50+</div> {/* Giữ màu teal nổi bật */}
-                <div className="text-sm text-blue-200">Chương trình</div> {/* Giữ màu xanh nhạt */}
+                <div className="text-3xl font-bold text-teal-300">50+</div>
+                <div className="text-sm text-blue-200">Chương trình</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-teal-300">5000+</div>
@@ -154,12 +160,12 @@ export default function TrainingPage() {
       </section>
 
       {/* ========== MSC CORE VALUES SECTION - PHIÊN BẢN CÓ VÒNG LẶP ========== */}
-      <section ref={mscSectionRef} className="py-24 bg-gray-50 dark:bg-gray-900 overflow-hidden"> {/* Nền section */}
+      <section ref={mscSectionRef} className="py-24 bg-gray-50 overflow-hidden">
         <div className="container text-center max-w-5xl mx-auto">
           <div className="flex flex-col items-center justify-center space-y-4">
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white"> {/* Màu chữ tiêu đề */}
+            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900">
               <motion.span
-                className="text-orange-500 inline-block drop-shadow-[0_0_12px_theme(colors.orange.500)]" // Giữ màu cam nổi bật
+                className="text-orange-500 inline-block drop-shadow-[0_0_12px_theme(colors.orange.500)]"
                 variants={letterAnimation}
                 initial="initial"
                 animate={controlsM}
@@ -168,7 +174,7 @@ export default function TrainingPage() {
               </motion.span>
               entoring For Success
             </h2>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900">
               <motion.span
                 className="text-orange-500 inline-block drop-shadow-[0_0_12px_theme(colors.orange.500)]"
                 variants={letterAnimation}
@@ -179,7 +185,7 @@ export default function TrainingPage() {
               </motion.span>
               kills For Success
             </h2>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900">
               <motion.span
                 className="text-orange-500 inline-block drop-shadow-[0_0_12px_theme(colors.orange.500)]"
                 variants={letterAnimation}
@@ -196,15 +202,14 @@ export default function TrainingPage() {
             {coreValues.map((value, index) => (
               <motion.div 
                 key={index}
-                // Nền card và bóng đổ trong dark mode
-                className="p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
+                className="p-8 bg-white rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
                 custom={index}
                 variants={cardVariant}
                 initial="hidden"
                 animate={isMscInView ? "visible" : "hidden"}
               >
-                <h4 className={`text-xl font-bold ${value.color} mb-3 font-serif`}>{value.title}</h4> {/* Giữ màu gốc, nó đã đủ nổi bật */}
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{value.description}</p> {/* Màu chữ mô tả */}
+                <h4 className={`text-xl font-bold ${value.color} mb-3 font-serif`}>{value.title}</h4>
+                <p className="text-gray-600 leading-relaxed">{value.description}</p>
               </motion.div>
             ))}
           </div>
@@ -212,164 +217,79 @@ export default function TrainingPage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 bg-white dark:bg-gray-800"> {/* Nền section */}
+      <section className="py-20 bg-white">
         <div className="container">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white font-serif">Tại sao chọn MSC Center?</h2> {/* Màu chữ tiêu đề */}
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"> {/* Màu chữ mô tả */}
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 font-serif">Tại sao chọn MSC Center?</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Những lợi ích vượt trội khi học tập tại MSC Center
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {benefits.map((benefit, index) => (
               <div key={index} className="text-center p-6 hover:shadow-lg transition-all duration-300 rounded-xl">
-                {/* Nền icon và màu icon trong dark mode */}
-                <div className="w-16 h-16 bg-blue-100 dark:bg-blue-950 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <benefit.icon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <benefit.icon className="h-8 w-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">{benefit.title}</h3> {/* Màu chữ tiêu đề nhỏ */}
-                <p className="text-gray-600 dark:text-gray-300">{benefit.description}</p> {/* Màu chữ mô tả */}
+                <h3 className="text-xl font-bold mb-4 text-gray-900">{benefit.title}</h3>
+                <p className="text-gray-600">{benefit.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Programs Section with Sidebar */}
-      <section className="py-20 bg-gray-50 dark:bg-gray-900"> {/* Nền section */}
+      {/* Programs Section */}
+      <section className="py-20 bg-gray-50">
         <div className="container">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white font-serif">Chương trình đào tạo</h2> {/* Màu chữ tiêu đề */}
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"> {/* Màu chữ mô tả */}
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 font-serif">Chương trình đào tạo</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Các khóa học được thiết kế chuyên nghiệp, phù hợp với nhu cầu thực tế của doanh nghiệp
             </p>
           </div>
-
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Programs Grid */}
-            <div className="w-full">
-              {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="mt-4 text-gray-600 dark:text-gray-300">Đang tải khóa học...</p> {/* Màu chữ loading */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {programs.map((program) => (
+              <Card key={program.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
+                <div className="relative">
+                  <Image src={program.image} alt={program.title} width={400} height={300} className="w-full h-48 object-cover" />
+                  <div className="absolute top-4 left-4"><span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">{program.level}</span></div>
+                  <div className="absolute top-4 right-4"><span className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">{program.price}</span></div>
                 </div>
-              ) : programs.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="text-gray-400 dark:text-gray-500 mb-4"> {/* Màu icon */}
-                    <BookOpen className="h-16 w-16 mx-auto" />
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold text-gray-900">{program.title}</CardTitle>
+                  <div className="flex items-center space-x-4 text-sm text-gray-600">
+                    <div className="flex items-center space-x-1"><Clock className="h-4 w-4" /><span>{program.duration}</span></div>
+                    <div className="flex items-center space-x-1"><Users className="h-4 w-4" /><span>{program.students} học viên</span></div>
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">Không có khóa học</h3> {/* Màu chữ tiêu đề */}
-                  <p className="text-gray-600 dark:text-gray-300">Hiện tại chưa có khóa học nào được công bố.</p> {/* Màu chữ mô tả */}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {programs.map((program) => (
-                    <Card
-                      key={program.slug}
-                      // Nền card trong dark mode
-                      className="overflow-hidden hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800"
-                    >
-                      {/* Ảnh + nhãn */}
-                      <div className="relative">
-                        <Image
-                          src={program.image}
-                          alt={program.title}
-                          width={400}
-                          height={300}
-                          className="w-full h-48 object-cover"
-                        />
-
-                        {/* Level - giữ màu gốc vì đã nổi bật */}
-                        {program.level && (
-                          <div className="absolute top-4 left-4">
-                            <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                              {program.level}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Price - giữ màu gốc vì đã nổi bật */}
-                        <div className="absolute top-4 right-4">
-                          <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                            {program.price} VND
-                          </span>
-                        </div>
-
-                        {/* Category - giữ màu gốc vì đã nổi bật */}
-                        {program.category && (
-                          <div className="absolute bottom-4 left-4">
-                            <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                              {program.category}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Nội dung card */}
-                      <CardHeader>
-                        <CardTitle className="text-xl font-bold text-gray-900 dark:text-white"> {/* Màu chữ tiêu đề */}
-                          {program.title}
-                        </CardTitle>
-
-                        <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300"> {/* Màu chữ thông tin */}
-                          <div className="flex items-center space-x-1">
-                            <Clock className="h-4 w-4" /> {/* Icon màu mặc định hoặc thêm dark:text-gray-400 nếu muốn */}
-                            <span>{program.duration}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Users className="h-4 w-4" />
-                            <span>{program.students} học viên</span>
-                          </div>
-                        </div>
-                      </CardHeader>
-
-                      <CardContent>
-                        {/* Mô tả ngắn */}
-                        <p className="text-gray-600 dark:text-gray-300 mb-6">{program.description}</p> {/* Màu chữ mô tả */}
-
-                        {/* Highlights */}
-                        <div className="mb-6">
-                          <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Nội dung chính:</h4> {/* Màu chữ tiêu đề */}
-                          <ul className="space-y-2">
-                            {program.highlights.slice(0, 3).map((highlight, index) => (
-                              <li
-                                key={index}
-                                className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300" // Màu chữ highlight
-                              >
-                                <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" /> {/* Giữ màu xanh lá cây cho checkmark */}
-                                <span>{highlight}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        {/* Nút hành động */}
-                        <div className="flex space-x-3">
-                          <Link href={`/dao-tao/${program.slug}`} className="flex-1">
-                            <Button className="w-full btn-primary">Chi tiết khóa học</Button> {/* Nút chính giữ nguyên */}
-                          </Link>
-                          <Link href="/lien-he">
-                            <Button variant="outline" className="bg-transparent dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"> {/* Nút outline */}
-                              Đăng ký ngay
-                            </Button>
-                          </Link>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-6">{program.description}</p>
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-gray-900 mb-3">Nội dung chính:</h4>
+                    <ul className="space-y-2">
+                      {program.highlights.slice(0, 3).map((highlight, index) => (
+                        <li key={index} className="flex items-center space-x-2 text-sm text-gray-600"><CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" /><span>{highlight}</span></li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="flex space-x-3">
+                    <Link href={`/dao-tao/${program.id}`} className="flex-1"><Button className="w-full btn-primary">Chi tiết khóa học</Button></Link>
+                    <AddToCartButton courseId={program.id} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Gallery Section */}
-      <section className="py-20 bg-white dark:bg-gray-800"> {/* Nền section */}
+      <section className="py-20 bg-white">
         <div className="container">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white font-serif">THƯ VIỆN ẢNH</h2> {/* Màu chữ tiêu đề */}
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">Hình ảnh đào tạo tại các dự án !</p> {/* Màu chữ mô tả */}
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 font-serif">THƯ VIỆN ẢNH</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">Hình ảnh đào tạo tại các dự án !</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {galleryPhotos.map((photo, index) => (
@@ -382,26 +302,18 @@ export default function TrainingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-teal-600 text-white"> {/* Giữ nguyên gradient nổi bật, text-white đã đủ tốt */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-teal-600 text-white">
         <div className="container text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 font-serif">Sẵn sàng bắt đầu hành trình học tập?</h2>
           <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">Đăng ký tư vấn miễn phí để tìm hiểu chương trình phù hợp với bạn</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/lien-he">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 dark:bg-gray-200 dark:text-blue-700 dark:hover:bg-gray-300"> {/* Nút primary trong CTA */}
-                Đăng ký tư vấn miễn phí
-              </Button>
-            </Link>
-            <Link href="/chia-se">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-4 bg-transparent dark:border-gray-500 dark:hover:bg-gray-700/30"> {/* Nút outline trong CTA */}
-                Tải brochure
-              </Button>
-            </Link>
+            <Link href="/lien-he"><Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4">Đăng ký tư vấn miễn phí</Button></Link>
+            <Link href="/chia-se"><Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-4 bg-transparent">Tải brochure</Button></Link>
           </div>
         </div>
       </section>
       
-      {/* Lightbox Component - Giữ nguyên vì nền đen/mờ đã là dark mode tự nhiên */}
+      {/* Lightbox Component */}
       <AnimatePresence>
         {lightboxOpen && (
           <motion.div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeLightbox}>

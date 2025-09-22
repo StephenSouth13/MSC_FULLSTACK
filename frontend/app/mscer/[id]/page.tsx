@@ -2,53 +2,18 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import {
-  ArrowLeft,
-  Award,
-  TrendingUp,
-  Users,
-  Star,
-  Calendar,
-  GraduationCap,
-} from "lucide-react"
+import { ArrowLeft, Award, TrendingUp, Users, Star, Calendar, GraduationCap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { mscersData } from "@/data/mscer"
 
-// Định nghĩa type chi tiết cho từng MSCer
-interface MSCerDetail {
-  id: string
-  name: string
-  position: string
-  company: string
-  promotion: string
-  socialImpact: string
-  avatar: string
-  achievement: string
-  testimonial: string
-  background: {
-    education: string
-    previousRole: string
-    experience: string
-  }
-  course: string
-  achievements: string[]
-  skills: string[]
-  mentoring: string
-  graduationYear: string
-}
-
-// ✅ Định nghĩa Props cho dynamic route [id]
 interface Props {
-  params: {
-    id: string
-  }
+  params: { id: string }
 }
 
-// Tạo metadata động
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const mscer = (mscersData as MSCerDetail[]).find((m) => m.id === params.id)
+  const mscer = mscersData.find((m) => m.id === params.id)
 
   if (!mscer) {
     return {
@@ -63,9 +28,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-// Trang chi tiết MSCer
 export default function MSCerDetailPage({ params }: Props) {
-  const mscer = (mscersData as MSCerDetail[]).find((m) => m.id === params.id)
+  const mscer = mscersData.find((m) => m.id === params.id)
 
   if (!mscer) {
     notFound()
@@ -74,7 +38,7 @@ export default function MSCerDetailPage({ params }: Props) {
   return (
     <div className="min-h-screen pt-20 bg-gray-50">
       <div className="container py-8">
-        {/* Nút quay lại */}
+        {/* Back Button */}
         <div className="mb-8">
           <Link href="/mscer">
             <Button variant="ghost" className="hover:bg-gray-100">
@@ -85,11 +49,11 @@ export default function MSCerDetailPage({ params }: Props) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Cột trái - Thông tin hồ sơ */}
+          {/* Left Column - Profile Card */}
           <div className="lg:col-span-1">
             <Card className="sticky top-24">
               <CardContent className="p-6">
-                {/* Ảnh đại diện */}
+                {/* Avatar */}
                 <div className="text-center mb-6">
                   <div className="relative mx-auto mb-4 w-32 h-32">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-teal-600 rounded-full p-1">
@@ -115,7 +79,19 @@ export default function MSCerDetailPage({ params }: Props) {
                   <Badge className="bg-yellow-100 text-yellow-800 mb-4">{mscer.achievement}</Badge>
                 </div>
 
-                {/* Thăng tiến */}
+                {/* Key Metrics */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="text-center p-3 bg-green-50 rounded-lg">
+                    <div className="text-lg font-bold text-green-700">{mscer.currentSalary}</div>
+                    <div className="text-xs text-green-600">Mức lương hiện tại</div>
+                  </div>
+                  <div className="text-center p-3 bg-blue-50 rounded-lg">
+                    <div className="text-lg font-bold text-blue-700">{mscer.graduationYear}</div>
+                    <div className="text-xs text-blue-600">Tốt nghiệp MSC</div>
+                  </div>
+                </div>
+
+                {/* Promotion */}
                 <div className="mb-6 p-3 bg-orange-50 rounded-lg">
                   <div className="flex items-center space-x-2 mb-1">
                     <TrendingUp className="h-4 w-4 text-orange-600" />
@@ -124,7 +100,7 @@ export default function MSCerDetailPage({ params }: Props) {
                   <p className="text-xs text-orange-700">{mscer.promotion}</p>
                 </div>
 
-                {/* Tác động */}
+                {/* Social Impact */}
                 <div className="mb-6 p-3 bg-purple-50 rounded-lg">
                   <div className="flex items-center space-x-2 mb-1">
                     <Users className="h-4 w-4 text-purple-600" />
@@ -133,12 +109,10 @@ export default function MSCerDetailPage({ params }: Props) {
                   <p className="text-xs text-purple-700">{mscer.socialImpact}</p>
                 </div>
 
-                {/* Nút CTA */}
+                {/* CTA */}
                 <div className="space-y-3">
                   <Link href="/lien-he">
-                    <Button className="w-full btn-primary">
-                      Kết nối với {mscer.name.split(" ").pop()}
-                    </Button>
+                    <Button className="w-full btn-primary">Kết nối với {mscer.name.split(" ").pop()}</Button>
                   </Link>
                   <Link href="/dao-tao">
                     <Button variant="outline" className="w-full bg-transparent">
@@ -150,9 +124,9 @@ export default function MSCerDetailPage({ params }: Props) {
             </Card>
           </div>
 
-          {/* Cột phải - Thông tin chi tiết */}
+          {/* Right Column - Detailed Information */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Câu chuyện thành công */}
+            {/* Success Story */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -167,7 +141,7 @@ export default function MSCerDetailPage({ params }: Props) {
               </CardContent>
             </Card>
 
-            {/* Thông tin cá nhân */}
+            {/* Background */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -193,7 +167,7 @@ export default function MSCerDetailPage({ params }: Props) {
               </CardContent>
             </Card>
 
-            {/* Hành trình MSC */}
+            {/* MSC Journey */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -227,7 +201,7 @@ export default function MSCerDetailPage({ params }: Props) {
               </CardContent>
             </Card>
 
-            {/* Kỹ năng */}
+            {/* Skills */}
             <Card>
               <CardHeader>
                 <CardTitle>Kỹ năng chính</CardTitle>
@@ -243,7 +217,7 @@ export default function MSCerDetailPage({ params }: Props) {
               </CardContent>
             </Card>
 
-            {/* Thành tựu nổi bật */}
+            {/* Achievements */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -263,7 +237,7 @@ export default function MSCerDetailPage({ params }: Props) {
               </CardContent>
             </Card>
 
-            {/* Đóng góp cộng đồng */}
+            {/* Mentoring */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -276,7 +250,7 @@ export default function MSCerDetailPage({ params }: Props) {
               </CardContent>
             </Card>
 
-            {/* CTA cuối */}
+            {/* Call to Action */}
             <Card className="bg-gradient-to-r from-blue-50 to-teal-50">
               <CardContent className="p-8 text-center">
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">

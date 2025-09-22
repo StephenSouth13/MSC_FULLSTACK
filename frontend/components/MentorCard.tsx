@@ -88,11 +88,10 @@ const MentorCard = ({
         <CardFooter className="pt-0 px-6">
           {/* BƯỚC 2: SỬ DỤNG `linkPrefix` ĐỂ TẠO ĐƯỜNG DẪN ĐỘNG */}
           <Link href={`/${linkPrefix}/${slug || id}`} className="w-full">
-            <Button className="w-full bg-[#095095] hover:bg-[#074074] text-white group/btn">
-  Xem hồ sơ
-  <ExternalLink className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-</Button>
-
+            <Button className="w-full bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white group/btn">
+              Xem hồ sơ
+              <ExternalLink className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+            </Button>
           </Link>
         </CardFooter>
       </Card>

@@ -3,10 +3,11 @@ import { Roboto, Merriweather } from 'next/font/google';
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/components/language-provider";
-import { AuthProvider } from "@/contexts/auth-context";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { CartProvider } from "@/components/cart/CartProvider";
 
 // Cấu hình font Roboto cho chữ thường
 const roboto = Roboto({
@@ -113,12 +114,14 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <LanguageProvider>
             <AuthProvider>
-              <div className="min-h-screen bg-background text-foreground">
-                <Header />
-                <main>{children}</main>
-                <Footer />
-                <FloatingButtons />
-              </div>
+              <CartProvider>
+                <div className="min-h-screen bg-background text-foreground">
+                  <Header />
+                  <main>{children}</main>
+                  <Footer />
+                  <FloatingButtons />
+                </div>
+              </CartProvider>
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>

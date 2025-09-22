@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pt-20">
       <ContactForm />
     </div>
   )
