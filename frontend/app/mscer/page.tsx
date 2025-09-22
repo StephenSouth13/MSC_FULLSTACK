@@ -99,7 +99,7 @@ export default function MSCerPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-50">
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-br from-blue-900 via-blue-800 to-teal-900 text-white">
         <div className="container">
@@ -121,31 +121,31 @@ export default function MSCerPage() {
       </section>
 
       {/* Success Stats */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-gray-900">
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {successStats.map((stat, index) => (
               <motion.div 
                 key={index} 
-                className="text-center p-6 bg-gray-50 rounded-2xl"
+                className="text-center p-6 bg-gray-50 dark:bg-gray-950 rounded-2xl"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <stat.icon className="h-8 w-8 text-blue-600" />
+                <div className="w-16 h-16 bg-blue-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <stat.icon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                 </div>
-                <div className="text-4xl font-bold text-gray-900 mb-2">{stat.value}</div>
-                <p className="text-gray-600 text-lg">{stat.label}</p>
+                <div className="text-4xl font-bold text-gray-900 dark:text-gray-50 mb-2">{stat.value}</div>
+                <p className="text-gray-600 dark:text-gray-400 text-lg">{stat.label}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* MSCers Profiles Section - ĐÃ NÂNG CẤP */}
-      <section className="py-24 bg-gray-50">
+      {/* MSCers Profiles Section */}
+      <section className="py-24 bg-gray-50 dark:bg-gray-950">
         <div className="container">
           <motion.div 
             className="text-center mb-16"
@@ -154,8 +154,8 @@ export default function MSCerPage() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 font-serif">Câu Chuyện Thành Công</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-gray-50 font-serif">Câu Chuyện Thành Công</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
               Những MSCer tiêu biểu với hành trình phát triển sự nghiệp ấn tượng sau khi hoàn thành các chương trình đào tạo.
             </p>
           </motion.div>
@@ -169,7 +169,7 @@ export default function MSCerPage() {
                 transition={{ duration: 0.5, delay: index * 0.05 }}
                 viewport={{ once: true }}
               >
-                <Card className="h-full flex flex-col group overflow-hidden bg-white hover:shadow-2xl transition-all duration-300 rounded-2xl text-center border">
+                <Card className="h-full flex flex-col group overflow-hidden bg-white dark:bg-gray-900 hover:shadow-2xl transition-all duration-300 rounded-2xl text-center border dark:border-gray-800">
                   <CardContent className="p-8 flex flex-col flex-grow items-center">
                     <div className="relative mb-6">
                       <Image
@@ -177,17 +177,17 @@ export default function MSCerPage() {
                         alt={mscer.name}
                         width={128}
                         height={128}
-                        className="rounded-full w-32 h-32 object-cover border-4 border-white shadow-lg"
+                        className="rounded-full w-32 h-32 object-cover border-4 border-white dark:border-gray-900 shadow-lg"
                       />
                       <div className="absolute -bottom-2 -right-2 bg-gradient-to-br from-blue-500 to-teal-400 p-2 rounded-full shadow-md">
                         <Star className="h-5 w-5 text-white fill-white" />
                       </div>
                     </div>
                     
-                    <CardTitle className="text-2xl font-bold text-gray-900">{mscer.name}</CardTitle>
-                    <p className="text-blue-600 font-semibold text-base mb-4">{mscer.position}</p>
+                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-50">{mscer.name}</CardTitle>
+                    <p className="text-blue-600 dark:text-blue-400 font-semibold text-base mb-4">{mscer.position}</p>
                     
-                    <blockquote className="text-base text-gray-600 italic leading-relaxed mb-6 flex-grow">
+                    <blockquote className="text-base text-gray-600 dark:text-gray-400 italic leading-relaxed mb-6 flex-grow">
                       "{mscer.testimonial}"
                     </blockquote>
                     
@@ -210,23 +210,23 @@ export default function MSCerPage() {
       {/* Join MSCer Community Section */}
       <section className="py-24 bg-gradient-to-r from-blue-600 to-teal-600 text-white">
         <div className="container text-center">
-           <motion.div
+            <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-           >
+            >
               <h2 className="text-4xl md:text-5xl font-bold mb-6 font-serif">Viết nên câu chuyện của riêng bạn</h2>
               <p className="text-xl text-blue-100 mb-10 max-w-3xl mx-auto">
                 Bắt đầu hành trình phát triển sự nghiệp cùng MSC Center và trở thành gương mặt thành công tiếp theo trong cộng đồng MSCer.
               </p>
               <Link href="/dao-tao">
-                  <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-10 py-6">
+                  <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 dark:bg-gray-50 dark:text-blue-600 dark:hover:bg-gray-200 text-lg px-10 py-6">
                     Khám phá các khóa học
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
               </Link>
-           </motion.div>
+            </motion.div>
         </div>
       </section>
     </div>

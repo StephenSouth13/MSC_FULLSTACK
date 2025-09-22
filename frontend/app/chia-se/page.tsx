@@ -84,7 +84,7 @@ export default function BlogPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950  text-gray-900 dark:text-gray-50">
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-br from-blue-900 via-blue-800 to-teal-900 text-white">
         <div className="container">
@@ -106,7 +106,7 @@ export default function BlogPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-gray-900">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -118,11 +118,11 @@ export default function BlogPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <stat.icon className="h-8 w-8 text-blue-600" />
+                <div className="w-16 h-16 bg-blue-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <stat.icon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                 </div>
-                <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
-                <p className="text-gray-600">{stat.label}</p>
+                <div className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-2">{stat.value}</div>
+                <p className="text-gray-600 dark:text-gray-400">{stat.label}</p>
               </motion.div>
             ))}
           </div>
@@ -130,7 +130,7 @@ export default function BlogPage() {
       </section>
 
       {/* Featured Post */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-gray-50 dark:bg-gray-950">
         <div className="container">
           <motion.div 
             className="text-center mb-16"
@@ -139,8 +139,8 @@ export default function BlogPage() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 font-serif">Bài viết nổi bật</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-gray-50 font-serif">Bài viết nổi bật</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
               Những góc nhìn sâu sắc và quan trọng nhất được chia sẻ từ các chuyên gia của chúng tôi.
             </p>
           </motion.div>
@@ -151,7 +151,7 @@ export default function BlogPage() {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 max-w-6xl mx-auto rounded-2xl">
+            <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 max-w-6xl mx-auto rounded-2xl dark:bg-gray-900 dark:border-gray-800">
               <div className="grid grid-cols-1 lg:grid-cols-2">
                 <div className="relative aspect-video lg:aspect-auto">
                   <Image
@@ -168,10 +168,10 @@ export default function BlogPage() {
                     <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium mb-4 inline-block">
                       {featuredPost.category}
                     </span>
-                    <h3 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+                    <h3 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-gray-50 mb-4 leading-tight">
                       {featuredPost.title}
                     </h3>
-                    <p className="text-gray-600 mb-6 leading-relaxed text-lg">{featuredPost.excerpt}</p>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed text-lg">{featuredPost.excerpt}</p>
 
                     <div className="flex items-center space-x-4 mb-8">
                       <Image
@@ -179,11 +179,11 @@ export default function BlogPage() {
                         alt={featuredPost.author}
                         width={48}
                         height={48}
-                        className="w-12 h-12 rounded-full border-2 border-white shadow-md"
+                        className="w-12 h-12 rounded-full border-2 border-white dark:border-gray-800 shadow-md"
                       />
                       <div>
-                        <p className="font-semibold text-gray-900">{featuredPost.author}</p>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <p className="font-semibold text-gray-900 dark:text-gray-50">{featuredPost.author}</p>
+                        <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                           <div className="flex items-center space-x-1"><Calendar className="h-4 w-4" /><span>{featuredPost.publishDate}</span></div>
                           <div className="flex items-center space-x-1"><Clock className="h-4 w-4" /><span>{featuredPost.readTime}</span></div>
                         </div>
@@ -204,7 +204,7 @@ export default function BlogPage() {
       </section>
 
       {/* Categories */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white dark:bg-gray-900">
         <div className="container">
           <motion.div 
             className="text-center mb-16"
@@ -213,8 +213,8 @@ export default function BlogPage() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 font-serif">Chủ đề chính</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-gray-50 font-serif">Chủ đề chính</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
               Khám phá nội dung theo các lĩnh vực chuyên môn mà bạn quan tâm.
             </p>
           </motion.div>
@@ -229,12 +229,12 @@ export default function BlogPage() {
                 viewport={{ once: true }}
               >
                 <Link href={`/chia-se/category/${category.name.toLowerCase().replace(/ /g, '-')}`}>
-                  <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group p-6 text-center hover:-translate-y-2 rounded-2xl">
+                  <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer group p-6 text-center hover:-translate-y-2 rounded-2xl dark:bg-gray-950 dark:border-gray-800">
                     <div className={`w-16 h-16 ${category.color} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
                       <BookOpen className="h-8 w-8 text-white" />
                     </div>
-                    <h3 className="font-bold text-gray-900 text-lg mb-2">{category.name}</h3>
-                    <p className="text-sm text-gray-600">{category.count} bài viết</p>
+                    <h3 className="font-bold text-gray-900 dark:text-gray-50 text-lg mb-2">{category.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{category.count} bài viết</p>
                   </Card>
                 </Link>
               </motion.div>
@@ -244,7 +244,7 @@ export default function BlogPage() {
       </section>
 
       {/* Recent Posts */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-gray-50 dark:bg-gray-950">
         <div className="container">
           <motion.div 
             className="text-center mb-16"
@@ -253,8 +253,8 @@ export default function BlogPage() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 font-serif">Bài viết mới nhất</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-gray-50 font-serif">Bài viết mới nhất</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
               Cập nhật những kiến thức và góc nhìn mới nhất từ các chuyên gia của chúng tôi.
             </p>
           </motion.div>
@@ -268,7 +268,7 @@ export default function BlogPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="h-full flex flex-col group overflow-hidden hover:shadow-xl transition-all duration-300 rounded-2xl">
+                <Card className="h-full flex flex-col group overflow-hidden hover:shadow-xl transition-all duration-300 rounded-2xl dark:bg-gray-900 dark:border-gray-800">
                   <div className="relative aspect-video">
                     <Image src={post.image} alt={post.title} fill className="object-cover transition-transform duration-500 group-hover:scale-110" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -278,15 +278,15 @@ export default function BlogPage() {
                   </div>
 
                   <CardContent className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-700 transition-colors duration-300 line-clamp-2 leading-tight">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-50 mb-3 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors duration-300 line-clamp-2 leading-tight">
                       {post.title}
                     </h3>
-                    <p className="text-gray-600 mb-4 line-clamp-3 flex-grow">{post.excerpt}</p>
-                    <div className="flex items-center space-x-3 mt-auto pt-4 border-t">
+                    <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 flex-grow">{post.excerpt}</p>
+                    <div className="flex items-center space-x-3 mt-auto pt-4 border-t dark:border-gray-800">
                       <Image src={post.authorAvatar} alt={post.author} width={40} height={40} className="w-10 h-10 rounded-full" />
                       <div>
-                        <p className="text-sm font-semibold text-gray-900">{post.author}</p>
-                        <p className="text-xs text-gray-500">{post.publishDate}</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{post.author}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{post.publishDate}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -314,8 +314,8 @@ export default function BlogPage() {
           </p>
           <div className="max-w-md mx-auto">
             <form className="flex">
-              <input type="email" placeholder="Nhập email của bạn" className="flex-1 px-4 py-3 rounded-l-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white" required />
-              <Button type="submit" className="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-r-lg">Đăng ký</Button>
+              <input type="email" placeholder="Nhập email của bạn" className="flex-1 px-4 py-3 rounded-l-lg text-gray-900 dark:bg-gray-800 dark:text-gray-50 focus:outline-none focus:ring-2 focus:ring-white" required />
+              <Button type="submit" className="bg-white text-blue-600 hover:bg-gray-100 dark:bg-gray-50 dark:text-blue-600 dark:hover:bg-gray-200 px-6 py-3 rounded-r-lg">Đăng ký</Button>
             </form>
           </div>
         </div>
