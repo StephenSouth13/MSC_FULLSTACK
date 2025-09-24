@@ -15,7 +15,6 @@ interface Message {
   text: string
   sender: "user" | "bot"
   timestamp: Date
-  isTyping?: boolean
 }
 
 interface QuickReply {
@@ -43,60 +42,18 @@ const Chatbot = () => {
   const dragControls = useDragControls()
 
   const quickReplies: QuickReply[] = [
-    {
-      id: "courses",
-      text: "📚 Khóa học nào phù hợp với tôi?",
-      response:
-        "Tuyệt vời! Để tư vấn khóa học phù hợp nhất, bạn có thể cho tôi biết:\n\n🎯 Mục tiêu học tập của bạn?\n💼 Kinh nghiệm hiện tại?\n⏰ Thời gian có thể dành để học?\n\nHoặc bạn có thể xem danh sách khóa học tại: /dao-tao",
-    },
-    {
-      id: "mentors",
-      text: "👨‍🏫 Thông tin về mentors",
-      response:
-        "MSC Center có đội ngũ mentors giàu kinh nghiệm:\n\n⭐ 50+ mentors chuyên nghiệp\n🏢 Từ các công ty hàng đầu\n🎓 Kinh nghiệm 5-15 năm\n💡 Chuyên môn đa dạng\n\nXem chi tiết tại: /mentors\n\nBạn muốn tìm mentor theo lĩnh vực nào?",
-    },
-    {
-      id: "support",
-      text: "🔧 Hỗ trợ kỹ thuật",
-      response:
-        "Tôi có thể hỗ trợ bạn:\n\n🔐 Vấn đề đăng nhập\n📱 Lỗi trên mobile/desktop\n🎥 Không xem được video\n📊 Theo dõi tiến độ học\n💳 Thanh toán khóa học\n\nVui lòng mô tả chi tiết vấn đề bạn gặp phải!",
-    },
-    {
-      id: "roadmap",
-      text: "🗺️ Lộ trình học tập",
-      response:
-        "MSC Center có các lộ trình học tập:\n\n🚀 Frontend Developer (6 tháng)\n⚙️ Backend Developer (8 tháng)\n📱 Mobile Developer (7 tháng)\n🤖 AI/ML Engineer (10 tháng)\n💼 Trưởng phòng CNTT (4 tháng)\n\nBạn quan tâm lộ trình nào?",
-    },
-    {
-      id: "pricing",
-      text: "💰 Học phí và ưu đãi",
-      response:
-        "Thông tin học phí MSC Center:\n\n💎 Khóa cơ bản: 2-5 triệu VNĐ\n🔥 Khóa nâng cao: 5-10 triệu VNĐ\n🎯 Khóa chuyên sâu: 10-20 triệu VNĐ\n\n🎁 Ưu đãi hiện tại:\n• Giảm 30% cho sinh viên\n• Giảm 20% khi đăng ký sớm\n• Học phí 0đ cho 3 bài đầu\n\nLiên hệ tư vấn: (+84) 329 381 489",
-    },
-    {
-      id: "contact",
-      text: "📞 Liên hệ trực tiếp",
-      response:
-        "Thông tin liên hệ MSC Center:\n\n📧 Email: msc.edu.vn@gmail.com\n📞 Hotline: (+84) 329 381 489\n🏢 Địa chỉ: 279 Nguyễn Tri Phương, Phường Diên Hồng, TP.HCM\n⏰ Giờ làm việc: 8:00 - 22:00\n\n🌐 Website: msc.edu.vn\n📱 Facebook: /msc.edu.vn\n💼 LinkedIn: /company/msc-center",
-    },
+    { id: "courses", text: "📚 Khóa học nào phù hợp với tôi?", response: "Tuyệt vời! Để tư vấn khóa học phù hợp nhất, bạn có thể cho tôi biết:\n\n🎯 Mục tiêu học tập của bạn?\n💼 Kinh nghiệm hiện tại?\n⏰ Thời gian có thể dành để học?\n\nHoặc bạn có thể xem danh sách khóa học tại: /dao-tao" },
+    { id: "mentors", text: "👨‍🏫 Thông tin về mentors", response: "MSC Center có đội ngũ mentors giàu kinh nghiệm:\n\n⭐ 50+ mentors chuyên nghiệp\n🏢 Từ các công ty hàng đầu\n🎓 Kinh nghiệm 5-15 năm\n💡 Chuyên môn đa dạng\n\nXem chi tiết tại: /mentors\n\nBạn muốn tìm mentor theo lĩnh vực nào?" },
+    { id: "support", text: "🔧 Hỗ trợ kỹ thuật", response: "Tôi có thể hỗ trợ bạn:\n\n🔐 Vấn đề đăng nhập\n📱 Lỗi trên mobile/desktop\n🎥 Không xem được video\n📊 Theo dõi tiến độ học\n💳 Thanh toán khóa học\n\nVui lòng mô tả chi tiết vấn đề bạn gặp phải!" },
+    { id: "roadmap", text: "🗺️ Lộ trình học tập", response: "MSC Center có các lộ trình học tập:\n\n🚀 Frontend Developer (6 tháng)\n⚙️ Backend Developer (8 tháng)\n📱 Mobile Developer (7 tháng)\n🤖 AI/ML Engineer (10 tháng)\n💼 Trưởng phòng CNTT (4 tháng)\n\nBạn quan tâm lộ trình nào?" },
+    { id: "pricing", text: "💰 Học phí và ưu đãi", response: "Thông tin học phí MSC Center:\n\n💎 Khóa cơ bản: 2-5 triệu VNĐ\n🔥 Khóa nâng cao: 5-10 triệu VNĐ\n🎯 Khóa chuyên sâu: 10-20 triệu VNĐ\n\n🎁 Ưu đãi hiện tại:\n• Giảm 30% cho sinh viên\n• Giảm 20% khi đăng ký sớm\n• Học phí 0đ cho 3 bài đầu\n\nLiên hệ tư vấn: (+84) 329 381 489" },
+    { id: "contact", text: "📞 Liên hệ trực tiếp", response: "Thông tin liên hệ MSC Center:\n\n📧 Email: msc.edu.vn@gmail.com\n📞 Hotline: (+84) 329 381 489\n🏢 Địa chỉ: 279 Nguyễn Tri Phương, Phường Diên Hồng, TP.HCM\n⏰ Giờ làm việc: 8:00 - 22:00\n\n🌐 Website: msc.edu.vn\n📱 Facebook: /msc.edu.vn\n💼 LinkedIn: /company/msc-center" },
   ]
 
   const botResponses = {
-    greeting: [
-      "Xin chào! Tôi có thể giúp gì cho bạn? 😊",
-      "Chào bạn! Rất vui được hỗ trợ bạn hôm nay! 🌟",
-      "Hello! Tôi là MSC Assistant, sẵn sàng giúp đỡ bạn! 🤖",
-    ],
-    thanks: [
-      "Không có gì! Tôi luôn sẵn sàng hỗ trợ bạn! 😊",
-      "Rất vui được giúp đỡ bạn! Còn gì khác không? 🌟",
-      "Cảm ơn bạn! Hãy liên hệ bất cứ khi nào cần hỗ trợ! 💙",
-    ],
-    default: [
-      "Tôi hiểu bạn đang quan tâm về vấn đề này. Để được hỗ trợ tốt nhất, bạn có thể:\n\n📞 Gọi hotline: (+84) 329 381 489\n📧 Email: msc.edu.vn@gmail.com\n💬 Chat với tư vấn viên\n\nHoặc chọn một trong các câu hỏi phổ biến bên dưới! 👇",
-      "Cảm ơn bạn đã liên hệ! Tôi sẽ chuyển yêu cầu của bạn đến đội ngũ chuyên môn để được hỗ trợ tốt nhất.\n\nTrong lúc chờ đợi, bạn có thể tham khảo:\n📚 Khóa học: /dao-tao\n👨‍🏫 Mentors: /mentors\n📝 Blog: /chia-se",
-      "Tôi đang học hỏi thêm để trả lời câu hỏi này tốt hơn! 🤖\n\nHiện tại, bạn có thể:\n• Liên hệ trực tiếp qua hotline\n• Gửi email chi tiết\n• Đặt lịch tư vấn miễn phí\n\nTeam MSC sẽ phản hồi trong 24h! ⚡",
-    ],
+    greeting: ["Xin chào! Tôi có thể giúp gì cho bạn? 😊", "Chào bạn! Rất vui được hỗ trợ bạn hôm nay! 🌟", "Hello! Tôi là MSC Assistant, sẵn sàng giúp đỡ bạn! 🤖"],
+    thanks: ["Không có gì! Tôi luôn sẵn sàng hỗ trợ bạn! 😊", "Rất vui được giúp đỡ bạn! Còn gì khác không? 🌟", "Cảm ơn bạn! Hãy liên hệ bất cứ khi nào cần hỗ trợ! 💙"],
+    default: ["Tôi hiểu bạn đang quan tâm về vấn đề này. Để được hỗ trợ tốt nhất, bạn có thể:\n\n📞 Gọi hotline: (+84) 329 381 489\n📧 Email: msc.edu.vn@gmail.com\n💬 Chat với tư vấn viên\n\nHoặc chọn một trong các câu hỏi phổ biến bên dưới! 👇", "Cảm ơn bạn đã liên hệ! Tôi sẽ chuyển yêu cầu của bạn đến đội ngũ chuyên môn để được hỗ trợ tốt nhất.\n\nTrong lúc chờ đợi, bạn có thể tham khảo:\n📚 Khóa học: /dao-tao\n👨‍🏫 Mentors: /mentors\n📝 Blog: /chia-se", "Tôi đang học hỏi thêm để trả lời câu hỏi này tốt hơn! 🤖\n\nHiện tại, bạn có thể:\n• Liên hệ trực tiếp qua hotline\n• Gửi email chi tiết\n• Đặt lịch tư vấn miễn phí\n\nTeam MSC sẽ phản hồi trong 24h! ⚡"],
   }
 
   const scrollToBottom = () => {
@@ -209,6 +166,46 @@ const Chatbot = () => {
     ])
   }
 
+  // Framer Motion Variants
+  const chatbotVariants = {
+    open: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      height: "600px",
+      transition: { type: "spring", stiffness: 200, damping: 20 },
+    },
+    minimized: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      height: "60px",
+      transition: { type: "spring", stiffness: 200, damping: 20 },
+    },
+    exit: {
+      opacity: 0,
+      y: 100,
+      scale: 0.8,
+      transition: { duration: 0.3 },
+    },
+  }
+
+  const iconVariants = {
+    initial: { rotate: 0 },
+    animate: { rotate: [0, 10, -10, 0] },
+    transition: { duration: 2, repeat: Infinity, repeatDelay: 3 },
+  }
+
+  const badgeVariants = {
+    initial: { scale: 0, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+  }
+
+  const messageVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+  }
+
   return (
     <>
       {/* Floating Chat Button */}
@@ -219,38 +216,34 @@ const Chatbot = () => {
             animate={{ scale: 1, rotate: 0 }}
             exit={{ scale: 0, rotate: 180 }}
             transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
-            className="fixed bottom-6 right-6 z-50"
+            className="fixed bottom-6 right-6 z-50 cursor-grab active:cursor-grabbing"
             drag
             dragControls={dragControls}
             dragMomentum={false}
             dragElastic={0.1}
-            onDrag={(event, info) => {
-              setPosition({ x: info.offset.x, y: info.offset.y })
-            }}
+            onDrag={(event, info) => setPosition({ x: info.offset.x, y: info.offset.y })}
             style={{ x: position.x, y: position.y }}
           >
             <Button
               onClick={() => setIsOpen(true)}
-              className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-2xl hover:shadow-3xl transition-all duration-300 group relative overflow-hidden cursor-grab active:cursor-grabbing"
+              className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-2xl hover:shadow-3xl transition-all duration-300 group relative overflow-hidden"
             >
-              <motion.div
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, repeatDelay: 3 }}
-              >
+              <motion.div variants={iconVariants} initial="initial" animate="animate">
                 <MessageCircle className="h-8 w-8 text-white" />
               </motion.div>
 
               {/* Notification Badge */}
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
+                variants={badgeVariants}
+                initial="initial"
+                animate="animate"
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center border-2 border-white"
               >
                 <span className="text-xs text-white font-bold">1</span>
               </motion.div>
 
               {/* Pulse Effect */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-teal-600 animate-ping opacity-20" />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-teal-600 animate-pulse opacity-20" />
             </Button>
           </motion.div>
         )}
@@ -260,28 +253,23 @@ const Chatbot = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 100, scale: 0.8 }}
-            animate={{
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              height: isMinimized ? "60px" : "600px",
-            }}
-            exit={{ opacity: 0, y: 100, scale: 0.8 }}
-            transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
+            variants={chatbotVariants}
+            initial="exit"
+            animate={isMinimized ? "minimized" : "open"}
+            exit="exit"
             className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-2rem)] md:w-96"
             drag
             dragControls={dragControls}
             dragMomentum={false}
             dragElastic={0.1}
-            onDrag={(event, info) => {
-              setPosition({ x: info.offset.x, y: info.offset.y })
-            }}
+            onDrag={(event, info) => setPosition({ x: info.offset.x, y: info.offset.y })}
             style={{ x: position.x, y: position.y }}
           >
-            <Card className="h-full flex flex-col shadow-2xl border-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl overflow-hidden">
+            <Card className="h-full flex flex-col shadow-2xl border-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-xl overflow-hidden">
               {/* Header */}
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-4 flex-shrink-0 cursor-grab active:cursor-grabbing">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-4 flex-shrink-0 rounded-t-xl cursor-grab active:cursor-grabbing"
+                onPointerDown={(e) => dragControls.start(e)}
+              >
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center space-x-3">
                     <div className="relative">
@@ -294,37 +282,14 @@ const Chatbot = () => {
                     </div>
                   </CardTitle>
 
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onPointerDown={(e) => dragControls.start(e)}
-                      className="text-white hover:bg-white/20 p-1 h-auto cursor-grab active:cursor-grabbing"
-                    >
-                      <GripVertical className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsMinimized(!isMinimized)}
-                      className="text-white hover:bg-white/20 p-1 h-auto"
-                    >
+                  <div className="flex items-center space-x-1">
+                    <Button variant="ghost" size="sm" onClick={() => setIsMinimized(!isMinimized)} className="text-white hover:bg-white/20 p-1 h-auto transition-all duration-200">
                       {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={resetChat}
-                      className="text-white hover:bg-white/20 p-1 h-auto"
-                    >
+                    <Button variant="ghost" size="sm" onClick={resetChat} className="text-white hover:bg-white/20 p-1 h-auto transition-all duration-200">
                       <RotateCcw className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsOpen(false)}
-                      className="text-white hover:bg-white/20 p-1 h-auto"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="text-white hover:bg-white/20 p-1 h-auto transition-all duration-200">
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
@@ -338,6 +303,7 @@ const Chatbot = () => {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
                     className="flex-1 flex flex-col min-h-0"
                   >
                     <CardContent className="flex-1 flex flex-col p-0 min-h-0">
@@ -347,22 +313,23 @@ const Chatbot = () => {
                           {messages.map((message) => (
                             <motion.div
                               key={message.id}
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
+                              variants={messageVariants}
+                              initial="initial"
+                              animate="animate"
                               className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
                             >
                               <div
                                 className={`max-w-[85%] p-3 rounded-2xl ${
                                   message.sender === "user"
-                                    ? "bg-gradient-to-r from-blue-600 to-teal-600 text-white rounded-br-md"
-                                    : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-md"
+                                    ? "bg-gradient-to-r from-blue-600 to-teal-600 text-white rounded-br-none"
+                                    : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-none"
                                 }`}
                               >
                                 <div className="flex items-start space-x-2">
                                   {message.sender === "bot" && (
                                     <Bot className="h-4 w-4 mt-0.5 flex-shrink-0 text-blue-600" />
                                   )}
-                                  {message.sender === "user" && <User className="h-4 w-4 mt-0.5 flex-shrink-0" />}
+                                  {message.sender === "user" && <User className="h-4 w-4 mt-0.5 flex-shrink-0 text-white" />}
                                   <div className="flex-1">
                                     <p className="text-sm whitespace-pre-line leading-relaxed">{message.text}</p>
                                     <div
@@ -388,19 +355,13 @@ const Chatbot = () => {
                               animate={{ opacity: 1, y: 0 }}
                               className="flex justify-start"
                             >
-                              <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-2xl rounded-bl-md">
+                              <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-2xl rounded-bl-none">
                                 <div className="flex items-center space-x-2">
                                   <Bot className="h-4 w-4 text-blue-600" />
                                   <div className="flex space-x-1">
-                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                                    <div
-                                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                                      style={{ animationDelay: "0.1s" }}
-                                    />
-                                    <div
-                                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                                      style={{ animationDelay: "0.2s" }}
-                                    />
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-[bounce_1s_infinite_0s]" />
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-[bounce_1s_infinite_0.1s]" />
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-[bounce_1s_infinite_0.2s]" />
                                   </div>
                                 </div>
                               </div>
