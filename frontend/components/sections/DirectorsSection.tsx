@@ -27,7 +27,7 @@ export default function DirectorsSection() {
           viewport={{ once: true }}
         >
           <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-50 mb-4">
-            Ban Giám đốc
+            Ban Chủ Nhiệm
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Gặp gỡ những người lãnh đạo đã tạo nên MSC Center và định hướng sự phát triển của cộng đồng.
